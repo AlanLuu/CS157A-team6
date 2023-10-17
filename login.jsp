@@ -29,7 +29,7 @@
     <main>
         <section class="login-form">
             <h2>Login</h2>
-            <form action="login.jsp" method="POST">
+            <form>
                 <input type="email" name="email" placeholder="Email" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
@@ -45,19 +45,17 @@
             if (enteredEmail != null && enteredPassword != null) {
                 String dbName = "tasku";
                 String dbUser = "root";
-                String dbPassword = "root";
+                String dbPassword = "graser10";
                 try {
                     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
-                    PreparedStatement statement = con.prepareStatement("SELECT Password FROM users WHERE Email = ?");
+                    PreparedStatement statement = con.prepareStatement("SELECT Password, UserID FROM users WHERE Email = ?");
                     statement.setString(1, enteredEmail);
                     ResultSet rs = statement.executeQuery();
                     if (rs.next()) {
                         String dbUserPassword = rs.getString("Password");
                         if (dbUserPassword.equals(enteredPassword)) {
                             int dbUserID = rs.getInt("UserID");
-                            HttpSession session = request.getSession(true);
-                            session.setAttribute("userID", dbUserID);
-                            response.sendRedirect("dashboard.jsp");
+                            response.sendRedirect("dashboard.jsp?userID=" + dbUserID);
                         } else {
                             out.println("<h2>Incorrect username or password. Please try again.</h2>");
                         }

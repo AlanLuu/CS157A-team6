@@ -165,3 +165,19 @@ button {
 .create-task-button{
   padding:20px;
 }
+
+.user-profile {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.user-name {
+    margin-right: 10px;
+}
+
+.user-icon {
+    width: 30px;
+    height: 30px;
+}
