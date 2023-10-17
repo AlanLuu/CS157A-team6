@@ -1,5 +1,3 @@
-
-
 /* Reset some default styles for consistency */
 body, h1, h2, p, form, input, button, a {
     margin: 0;
@@ -19,9 +17,21 @@ nav {
     color: black;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 10px 20px;
 }
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    margin-right: 20px;
+}
+
 
 .logo {
     display: flex;
@@ -89,7 +99,69 @@ button {
     margin-top: 10px;
 }
 
-
 .register-link {
     text-align: center;
+}
+
+/* Add the modal styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    width: 70%;
+    max-width: 400px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+/* Style for the "Your Tasks" box */
+.task-list {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    margin: 20px;
+}
+
+/* Style for individual task boxes */
+.task {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 10px 0;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Style for the task details (hidden by default) */
+.task-details {
+    display: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.create-task-button{
+  padding:20px;
 }

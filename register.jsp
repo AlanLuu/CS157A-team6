@@ -53,7 +53,7 @@
                     statement.setString(2, enteredEmail);
                     statement.setString(3, enteredPassword);
                     statement.execute();
-                    out.println("<br><h2>You have been successfully registered.</h2>");
+                    response.sendRedirect("login.jsp");
                 } catch (SQLException e) {
                     out.println("There was a problem with the SQL connection. <br>");
                     out.println("Please make sure you have the correct database name, username, and password, and that the schema and tables have been created. <br>");

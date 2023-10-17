@@ -1,4 +1,7 @@
 <%@ page import="java.sql.*"%>
+<%@ page import="javax.servlet.http.HttpSession" %>
+<%@ page session="false" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -51,7 +54,10 @@
                     if (rs.next()) {
                         String dbUserPassword = rs.getString("Password");
                         if (dbUserPassword.equals(enteredPassword)) {
-                            out.println("<h2>Login success</h2>");
+                            int dbUserID = rs.getInt("UserID");
+                            HttpSession session = request.getSession(true);
+                            session.setAttribute("userID", dbUserID);
+                            response.sendRedirect("dashboard.jsp");
                         } else {
                             out.println("<h2>Incorrect username or password. Please try again.</h2>");
                         }
