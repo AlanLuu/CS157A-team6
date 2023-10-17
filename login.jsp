@@ -40,10 +40,28 @@
             String enteredPassword = request.getParameter("password");
 
             if (enteredEmail != null && enteredPassword != null) {
-                if ("a@a.com".equals(enteredEmail) && "pass".equals(enteredPassword)) {
-                    out.println("<h2>Login success</h2>");
-                } else {
-                    out.println("<h2>Login fail</h2>");
+                String dbName = "tasku";
+                String dbUser = "root";
+                String dbPassword = "root";
+                try {
+                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+                    PreparedStatement statement = con.prepareStatement("SELECT Password FROM users WHERE Email = ?");
+                    statement.setString(1, enteredEmail);
+                    ResultSet rs = statement.executeQuery();
+                    if (rs.next()) {
+                        String dbUserPassword = rs.getString("Password");
+                        if (dbUserPassword.equals(enteredPassword)) {
+                            out.println("<h2>Login success</h2>");
+                        } else {
+                            out.println("<h2>Incorrect username or password. Please try again.</h2>");
+                        }
+                    } else {
+                        out.println("<h2>Incorrect username or password. Please try again.</h2>");
+                    }
+                } catch (SQLException e) {
+                    out.println("There was a problem with the SQL connection. <br>");
+                    out.println("Please make sure you have the correct database name, username, and password, and that the schema and tables have been created. <br>");
+                    out.println("SQLException: " + e.getMessage());
                 }
             }
         %>
