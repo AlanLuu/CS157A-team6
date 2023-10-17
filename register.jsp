@@ -1,3 +1,4 @@
+<%@ page import="java.sql.*"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,14 +9,14 @@
 </head>
 <body>
     <nav>
-        <a href="home.html">
+        <a href="home.jsp">
             <div class="logo">
                 <img src="TaskULogo.png" alt="TaskU Logo">
             </div>
         </a>
         <div class="login-register">
-            <a href="login.html">Login</a>
-            <a href="register.html">Register</a>
+            <a href="login.jsp">Login</a>
+            <a href="register.jsp">Register</a>
         </div>
     </nav>
     <header>
@@ -32,7 +33,7 @@
                 <button type="submit">Register</button>
             </form>
             <br>
-            <p class="register-link">Already have an account? <a href="login.html">Login here</a></p>
+            <p class="register-link">Already have an account? <a href="login.jsp">Login here</a></p>
         </section>
     </main>
 
