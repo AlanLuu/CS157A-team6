@@ -8,14 +8,10 @@
     <link rel="stylesheet" href="styles.css">
       <script>
 
+      // Opens the popup/modal for the create task form.
       function openTaskModal() {
           var modal = document.getElementById("taskModal");
           modal.style.display = "block";
-      }
-
-      function closeTaskModal() {
-          var modal = document.getElementById("taskModal");
-          modal.style.display = "none";
       }
 
       // Close the modal when clicking outside the form
@@ -26,16 +22,7 @@
           }
       }
 
-       function openTaskForm() {
-           var taskForm = document.getElementById("taskForm");
-           taskForm.style.display = "block";
-       }
-
-       function closeTaskForm() {
-           var taskForm = document.getElementById("taskForm");
-           taskForm.style.display = "none";
-       }
-
+      // Shows/Hides the details of the task upon clicking
        function toggleTaskDetails(taskId) {
             var taskDetails = document.getElementById(taskId);
             if (taskDetails.style.display === "block") {
@@ -45,6 +32,7 @@
             }
         }
 
+        //Delete Task confirmation
        function deleteTask(taskId) {
           var confirmed = confirm("Are you sure you want to delete this task?");
           if (confirmed) {
@@ -63,13 +51,15 @@
    </script>
 </head>
 <body>
+
+    <!-- nav bar with logo -->
     <nav>
 
         <div class="logo">
             <img src="TaskULogo.png" alt="TaskU Logo">
         </div>
         <div class="user-profile">
-
+          <!--Places the user's name at the top right by using the user's ID -->
             <span class="user-name">
                 <%
                     String userID = request.getParameter("userID");
@@ -91,7 +81,7 @@
                         }
                         out.print(fullName);
                     } else {
-                        // Handle the case when the user is not logged in
+                        out.print("Please log in.");
                     }
                 %>
             </span>
@@ -99,6 +89,7 @@
         </div>
     </nav>
 
+ <!-- Create Task Form Popup/Modal -->
     <div class="create-task-button">
       <button onclick="openTaskModal()">Create Task</button>
     </div>
@@ -129,6 +120,7 @@
     </div>
 
     <%
+    // Handles creating the task and saving it to the database
     if (request.getParameter("title") != null) {
 
         if (userID != null) {
@@ -143,7 +135,7 @@
             try {
                 String dbName = "tasku";
                 String dbUser = "root";
-                String dbPassword = "graser10";
+                String dbPassword = "root";
                 Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
 
                 PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Category, AllocatedTime, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
@@ -166,7 +158,7 @@
     }
     %>
 
-
+    <!-- This container shows all of the user's tasks in list form from the database -->
     <div class="task-list">
             <h2>Your Tasks</h2>
             <%
@@ -207,7 +199,9 @@
             %>
         </div>
 
+
         <%
+            // Handles the Delete Task function
             String deleteTaskId = request.getParameter("deleteTask");
             if (deleteTaskId != null) {
                 try {
