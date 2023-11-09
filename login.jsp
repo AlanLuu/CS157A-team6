@@ -45,7 +45,7 @@ root<%@ page import="java.sql.*"%>
             if (enteredEmail != null && enteredPassword != null) {
                 String dbName = "tasku";
                 String dbUser = "root";
-                String dbPassword = "graser10";
+                String dbPassword = "root";
                 try {
                     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
                     PreparedStatement statement = con.prepareStatement("SELECT Password, UserID FROM users WHERE Email = ?");

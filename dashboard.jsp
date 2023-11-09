@@ -65,10 +65,15 @@
           modal.style.display = "block";
       }
 
+      function closeTaskModal() {
+          var modal = document.getElementById("taskModal");
+          modal.style.display = "none";
+      }
+
       // Close the modal when clicking outside the form
       window.onclick = function(event) {
           var modal = document.getElementById("taskModal");
-          if (event.target == modal) {
+          if (event.target === modal) {
               modal.style.display = "none";
           }
       }
@@ -115,24 +120,27 @@
                 <%
                     String userID = request.getParameter("userID");
                     if (userID != null) {
+                        int userIDint = Integer.parseInt(userID);
                         String fullName = "";
                         try {
                             String dbName = "tasku";
                             String dbUser = "root";
-                            String dbPassword = "graser10";
+                            String dbPassword = "root";
                             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
                             PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
-                            statement.setString(1, userID);
+                            statement.setInt(1, userIDint);
                             ResultSet rs = statement.executeQuery();
                             if (rs.next()) {
                                 fullName = rs.getString("Name");
+                            } else {
+                                response.sendRedirect("login.jsp");
                             }
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
                         out.print(fullName);
                     } else {
-                        out.print("Please log in.");
+                        response.sendRedirect("login.jsp");
                     }
                 %>
             </span>
@@ -208,7 +216,7 @@
 
                 response.sendRedirect("dashboard.jsp?userID=" + userID);
             } catch (SQLException e) {
-                e.printStackTrace();
+                out.println("insert error: " + e);
             }
         }
     }
@@ -222,7 +230,7 @@
                     try {
                         String dbName = "tasku";
                         String dbUser = "root";
-                        String dbPassword = "graser10";
+                        String dbPassword = "root";
                         Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
                         PreparedStatement statement = con.prepareStatement("SELECT * FROM tasks WHERE UserID = ?");
                         statement.setString(1, userID);
@@ -249,7 +257,7 @@
                             <%
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        out.println("fetch error: " + e);
                     }
                 }
             %>
@@ -263,14 +271,14 @@
                 try {
                     String dbName = "tasku";
                     String dbUser = "root";
-                    String dbPassword = "graser10";
+                    String dbPassword = "root";
                     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
 
                     PreparedStatement statement = con.prepareStatement("DELETE FROM tasks WHERE TaskID = ?");
                     statement.setString(1, deleteTaskId);
                     statement.executeUpdate();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    out.println("delete error: " + e);
                 }
             }
         %>
