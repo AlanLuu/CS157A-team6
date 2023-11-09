@@ -32,7 +32,6 @@ nav {
     margin-right: 20px;
 }
 
-
 .logo {
     display: flex;
     align-items: center;
@@ -162,8 +161,8 @@ button {
     padding: 10px;
 }
 
-.create-task-button{
-  padding:20px;
+.create-task-button {
+    padding: 20px;
 }
 
 .user-profile {
