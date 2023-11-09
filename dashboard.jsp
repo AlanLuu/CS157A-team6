@@ -1,4 +1,29 @@
-<%@ page import="java.sql.*" %>
+<%@ page import="java.sql.*, java.util.ArrayList, java.util.List" %>
+<%
+    // Check if the request is to fetch categories
+    if ("true".equals(request.getParameter("fetchCategories"))) {
+        try {
+            String dbName = "tasku";
+            String dbUser = "root";
+            String dbPassword = "root";
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+
+            PreparedStatement statement = con.prepareStatement("SELECT categoryName FROM categories");
+            ResultSet rs = statement.executeQuery();
+
+            List<String> categories = new ArrayList<>();
+            while (rs.next()) {
+                categories.add(rs.getString("categoryName"));
+            }
+
+            // Print categories as a comma-separated string
+            out.print(String.join(",", categories));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +33,32 @@
     <link rel="stylesheet" href="styles.css">
       <script>
 
+      document.addEventListener("DOMContentLoaded", function() {
+       // Fetch categories from the server
+       var xhr = new XMLHttpRequest();
+       xhr.open("GET", "dashboard.jsp?fetchCategories=true", true);
+       xhr.onreadystatechange = function() {
+         if (xhr.readyState === 4 && xhr.status === 200) {
+           var categories = xhr.responseText.split(",");
+           populateCategories(categories);
+         }
+       };
+       xhr.send();
+     });
+
+     // Function to populate the category dropdown
+     function populateCategories(categories) {
+       var categoryDropdown = document.querySelector("select[name='category']");
+       // Clear existing options
+       categoryDropdown.innerHTML = "<option value='' disabled selected>Select Category</option>";
+       // Add new options
+       categories.forEach(function(category) {
+         var option = document.createElement("option");
+         option.value = category;
+         option.textContent = category;
+         categoryDropdown.appendChild(option);
+       });
+     }
       // Opens the popup/modal for the create task form.
       function openTaskModal() {
           var modal = document.getElementById("taskModal");
@@ -85,7 +136,9 @@
                     }
                 %>
             </span>
-            <img src="user-icon.png" class="user-icon"  style="width: 50px; height: 50px;">
+            <a href="settings.jsp?userID=<%= userID %>">
+                <img src="user-icon.png" class="user-icon"  style="width: 50px; height: 50px;">
+            </a>
         </div>
     </nav>
 
@@ -106,8 +159,11 @@
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
                 </select>
-              <input type="text" name="category" placeholder="Task Category">
-              <input type="text" name="allocatedTime" placeholder="Allocated Time">
+                <br>
+                <select name="category">
+                  <option value="" disabled selected>Select Category</option>
+                </select>
+              <input type="number" name="allocatedTime" placeholder="Allocated Time (Minutes)" required>
               <select name="status">
                   <option value="Not Started">Not Started</option>
                   <option value="In Progress">In Progress</option>
