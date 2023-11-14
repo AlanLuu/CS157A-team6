@@ -118,28 +118,28 @@
             <span class="user-name">
                 <%
                     Integer userID = (Integer) session.getAttribute("userID");
-                    if (userID != null) {
-                        String fullName = "";
-                        try {
-                            Connection con = Util.get_conn();
-                            PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
-                            statement.setInt(1, userID);
-                            ResultSet rs = statement.executeQuery();
-                            if (rs.next()) {
-                                fullName = rs.getString("Name");
-                            } else {
-                                response.sendRedirect("logout.jsp");
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        out.print(fullName);
-                    } else {
+                    if (userID == null) {
                         response.sendRedirect("logout.jsp");
+                        return;
                     }
+                    String fullName = "";
+                    try {
+                        Connection con = Util.get_conn();
+                        PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
+                        statement.setInt(1, userID);
+                        ResultSet rs = statement.executeQuery();
+                        if (!rs.next()) {
+                            response.sendRedirect("logout.jsp");
+                            return;
+                        }
+                        fullName = rs.getString("Name");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    out.print(fullName);
                 %>
             </span>
-            <a href="settings.jsp?userID=<%= userID %>">
+            <a href="settings.jsp">
                 <img src="user-icon.png" class="user-icon"  style="width: 50px; height: 50px;">
             </a>
         </div>
@@ -205,7 +205,7 @@
 
                 statement.executeUpdate();
 
-                response.sendRedirect("dashboard.jsp?userID=" + userID);
+                response.sendRedirect("dashboard.jsp");
             } catch (SQLException e) {
                 out.println("insert error: " + e);
             }
