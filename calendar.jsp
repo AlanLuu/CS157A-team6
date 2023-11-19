@@ -32,7 +32,6 @@
             // JavaScript function to navigate to the next month
             // You can use AJAX to fetch data for the next month and update the calendar content
             // Here, we're simply redirecting to the same page with a query parameter indicating the next month
-            
             // Get the URL of the current page
             var url = window.location.href;
 
@@ -71,7 +70,6 @@
             // JavaScript function to navigate to the previous month
             // Similar to goToNextMonth(), but navigating to the previous month
             // Here, we're redirecting to the same page with a query parameter indicating the previous month
-            
             // Get the URL of the current page
             var url = window.location.href;
 
