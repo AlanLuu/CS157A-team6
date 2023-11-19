@@ -26,7 +26,83 @@
             display: block;
             margin-bottom: 5px;
         }
-    </style>    
+    </style>   
+    <script>
+        function goToNextMonth() {
+            // JavaScript function to navigate to the next month
+            // You can use AJAX to fetch data for the next month and update the calendar content
+            // Here, we're simply redirecting to the same page with a query parameter indicating the next month
+            // Get the URL of the current page
+            var url = window.location.href;
+
+            // Create a URLSearchParams object by passing the URL
+            var searchParams = new URLSearchParams(url);
+
+            // Access the "year" and "month" query parameters
+            var year = searchParams.get("year");
+            var month = searchParams.get("month");
+            
+            var currentDate = new Date();
+            var currentYear = currentDate.getFullYear();
+            var currentMonth = currentDate.getMonth() + 2; // +2 to get the next month
+
+            if (year === null) {
+                year = currentYear;
+            }
+            if (month === null) {
+                month = currentMonth;
+            } else {
+                month = Number(month)
+                month += 1;
+            }
+
+            // If current month is December, go to next year
+            if (month === 13) {
+                year += 1;
+                month = 1; // January of the next year
+            }
+
+            // Redirect to the same page with the next month as a query parameter
+            window.location.href = "calendar.jsp?year=" + year + "&month=" + month;
+        }
+
+        function goToPreviousMonth() {
+            // JavaScript function to navigate to the previous month
+            // Similar to goToNextMonth(), but navigating to the previous month
+            // Here, we're redirecting to the same page with a query parameter indicating the previous month
+            // Get the URL of the current page
+            var url = window.location.href;
+
+            // Create a URLSearchParams object by passing the URL
+            var searchParams = new URLSearchParams(url);
+
+            // Access the "year" and "month" query parameters
+            var year = searchParams.get("year");
+            var month = searchParams.get("month");
+
+            var currentDate = new Date();
+            var currentYear = currentDate.getFullYear();
+            var currentMonth = currentDate.getMonth(); // Current month
+
+            if (year === null) {
+                year = currentYear;
+            }
+            if (month === null) {
+                month = currentMonth;
+            } else {
+                month -= 1;
+            }
+
+            // If current month is January, go to previous year
+            if (month === 0) {
+                year -= 1;
+                month = 12; // December of the previous year
+            }
+
+            // Redirect to the same page with the previous month as a query parameter
+            window.location.href = "calendar.jsp?year=" + year + "&month=" + month;
+        }
+    </script> 
 </head>
 <body>
     <h1>Task Calendar</h1>
@@ -87,7 +163,22 @@
                 <th>Sat</th>
             </tr>
             <%
+                int year, month;
+
+                // Retrieve year and month from query parameters
+                if (request.getParameter("year") != null && request.getParameter("month") != null) {
+                    year = Integer.parseInt(request.getParameter("year"));
+                    month = Integer.parseInt(request.getParameter("month"));
+                } else {
+                    // If no parameters, use the current year and month
+                    Calendar currentDate = Calendar.getInstance();
+                    year = currentDate.get(Calendar.YEAR);
+                    month = currentDate.get(Calendar.MONTH) + 1; // Note: Calendar.MONTH is 0-based
+                }
+
                 Calendar calendar = Calendar.getInstance();
+                calendar.set(Calendar.YEAR, year);
+                calendar.set(Calendar.MONTH, month - 1); // Calendar.MONTH is 0-based
                 calendar.set(Calendar.DAY_OF_MONTH, 1); // Set calendar to the first day of the month
                 
                 int startingDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK); // Get the starting day of the week for the month
@@ -128,6 +219,9 @@
                 out.println("</tr>");
             %>
         </table>
+        <!-- Buttons to navigate to previous and next months -->
+        <button onclick="goToPreviousMonth()">Previous Month</button>
+        <button onclick="goToNextMonth()">Next Month</button>
     </div>    
 </body>
 </html>
