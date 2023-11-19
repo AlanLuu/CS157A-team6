@@ -149,6 +149,9 @@
     <div class="create-task-button">
       <button onclick="openTaskModal()">Create Task</button>
     </div>
+    <form action="calendar.jsp">
+      <button type="submit">Open Calendar</button>
+    </form>
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeTaskModal()">&times;</span>
