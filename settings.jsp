@@ -56,8 +56,9 @@
     <nav>
    <div class="logo">
        <img src="TaskULogo.png" alt="TaskU Logo">
-       <div class="dashboard-link">
-           <a href="dashboard.jsp?userID=<%= userID %>">Dashboard</a>
+         <br>
+       <div class="nav-links">
+           <a href="dashboard.jsp?userID=<%= userID %>">| Dashboard |</a>
        </div>
    </div>
    <div class="user-profile">
@@ -117,6 +118,11 @@
         </div>
         <!-- Add more content divs for additional tabs -->
     </div>
+
+    <form action="logout.jsp">
+      <button type="submit">Logout</button>
+    </form>
+
 
 </body>
 </html>
