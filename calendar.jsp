@@ -182,10 +182,6 @@
             // Generate Calendar Grid
             // Display calendar days and populate tasks for each day
             // ... (code to generate calendar)
-            
-            // Generate Calendar Grid
-            // Display calendar days and populate tasks for each day
-            // ... (code to generate calendar)
 
         } catch (Exception e) {
             e.printStackTrace();
