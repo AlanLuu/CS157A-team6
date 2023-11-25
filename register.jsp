@@ -1,4 +1,5 @@
-<%@ page import="java.sql.*"%>
+<%@ include file="util.jsp" %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +10,7 @@
 </head>
 <body>
     <nav>
-        <a href="home.jsp">
+        <a href="index.jsp">
             <div class="logo">
                 <img src="TaskULogo.png" alt="TaskU Logo">
             </div>
@@ -42,16 +43,12 @@
             String enteredPassword = request.getParameter("password");
 
             if (enteredName != null && enteredEmail != null && enteredPassword != null) {
-                String dbName = "tasku";
-                String dbUser = "root";
-                String dbPassword = "root";
-
                 try {
-                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+                    Connection con = Util.get_conn();
                     PreparedStatement statement = con.prepareStatement("INSERT INTO users(Name, Email, Password) VALUES(?, ?, ?)");
                     statement.setString(1, enteredName);
                     statement.setString(2, enteredEmail);
-                    statement.setString(3, enteredPassword);
+                    statement.setString(3, Util.hashPassword(enteredPassword));
                     statement.execute();
                     response.sendRedirect("login.jsp");
                 } catch (SQLException e) {

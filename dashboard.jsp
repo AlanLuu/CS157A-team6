@@ -1,12 +1,11 @@
 <%@ page import="java.sql.*, java.util.ArrayList, java.util.List" %>
+<%@ include file="util.jsp" %>
+
 <%
     // Check if the request is to fetch categories
     if ("true".equals(request.getParameter("fetchCategories"))) {
         try {
-            String dbName = "tasku";
-            String dbUser = "root";
-            String dbPassword = "root";
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+            Connection con = Util.get_conn();
 
             PreparedStatement statement = con.prepareStatement("SELECT categoryName FROM categories");
             ResultSet rs = statement.executeQuery();
@@ -65,10 +64,15 @@
           modal.style.display = "block";
       }
 
+      function closeTaskModal() {
+          var modal = document.getElementById("taskModal");
+          modal.style.display = "none";
+      }
+
       // Close the modal when clicking outside the form
       window.onclick = function(event) {
           var modal = document.getElementById("taskModal");
-          if (event.target == modal) {
+          if (event.target === modal) {
               modal.style.display = "none";
           }
       }
@@ -113,30 +117,29 @@
           <!--Places the user's name at the top right by using the user's ID -->
             <span class="user-name">
                 <%
-                    String userID = request.getParameter("userID");
-                    if (userID != null) {
-                        String fullName = "";
-                        try {
-                            String dbName = "tasku";
-                            String dbUser = "root";
-                            String dbPassword = "graser10";
-                            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
-                            PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
-                            statement.setString(1, userID);
-                            ResultSet rs = statement.executeQuery();
-                            if (rs.next()) {
-                                fullName = rs.getString("Name");
-                            }
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
-                        out.print(fullName);
-                    } else {
-                        out.print("Please log in.");
+                    Integer userID = (Integer) session.getAttribute("userID");
+                    if (userID == null) {
+                        response.sendRedirect("logout.jsp");
+                        return;
                     }
+                    String fullName = "";
+                    try {
+                        Connection con = Util.get_conn();
+                        PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
+                        statement.setInt(1, userID);
+                        ResultSet rs = statement.executeQuery();
+                        if (!rs.next()) {
+                            response.sendRedirect("logout.jsp");
+                            return;
+                        }
+                        fullName = rs.getString("Name");
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                    out.print(fullName);
                 %>
             </span>
-            <a href="settings.jsp?userID=<%= userID %>">
+            <a href="settings.jsp">
                 <img src="user-icon.png" class="user-icon"  style="width: 50px; height: 50px;">
             </a>
         </div>
@@ -146,6 +149,9 @@
     <div class="create-task-button">
       <button onclick="openTaskModal()">Create Task</button>
     </div>
+    <form action="calendar.jsp">
+      <button type="submit">Open Calendar</button>
+    </form>
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeTaskModal()">&times;</span>
@@ -178,7 +184,6 @@
     <%
     // Handles creating the task and saving it to the database
     if (request.getParameter("title") != null) {
-
         if (userID != null) {
             String title = request.getParameter("title");
             String description = request.getParameter("description");
@@ -189,13 +194,10 @@
             String status = request.getParameter("status");
 
             try {
-                String dbName = "tasku";
-                String dbUser = "root";
-                String dbPassword = "root";
-                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+                Connection con = Util.get_conn();
 
                 PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Category, AllocatedTime, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                statement.setString(1, userID);
+                statement.setInt(1, userID);
                 statement.setString(2, title);
                 statement.setString(3, description);
                 statement.setString(4, dueDate);
@@ -206,9 +208,9 @@
 
                 statement.executeUpdate();
 
-                response.sendRedirect("dashboard.jsp?userID=" + userID);
+                response.sendRedirect("dashboard.jsp");
             } catch (SQLException e) {
-                e.printStackTrace();
+                out.println("insert error: " + e);
             }
         }
     }
@@ -220,12 +222,9 @@
             <%
                 if (userID != null) {
                     try {
-                        String dbName = "tasku";
-                        String dbUser = "root";
-                        String dbPassword = "graser10";
-                        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+                        Connection con = Util.get_conn();
                         PreparedStatement statement = con.prepareStatement("SELECT * FROM tasks WHERE UserID = ?");
-                        statement.setString(1, userID);
+                        statement.setInt(1, userID);
                         ResultSet rs = statement.executeQuery();
                         while (rs.next()) {
                             String taskId = rs.getString("TaskID");
@@ -249,7 +248,7 @@
                             <%
                         }
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        out.println("fetch error: " + e);
                     }
                 }
             %>
@@ -261,21 +260,16 @@
             String deleteTaskId = request.getParameter("deleteTask");
             if (deleteTaskId != null) {
                 try {
-                    String dbName = "tasku";
-                    String dbUser = "root";
-                    String dbPassword = "graser10";
-                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+                    Connection con = Util.get_conn();
 
                     PreparedStatement statement = con.prepareStatement("DELETE FROM tasks WHERE TaskID = ?");
                     statement.setString(1, deleteTaskId);
                     statement.executeUpdate();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    out.println("delete error: " + e);
                 }
             }
         %>
-
-
 
 </body>
 </html>

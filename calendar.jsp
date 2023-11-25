@@ -4,6 +4,30 @@
 <head>
     <title>Task Calendar</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .calendar {
+            font-family: Arial, sans-serif;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+    
+        .calendar th {
+            background-color: #f2f2f2;
+            text-align: center;
+            padding: 8px;
+        }
+    
+        .calendar td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+    
+        .calendar td strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
     <script>
         function goToNextMonth() {
             // JavaScript function to navigate to the next month
@@ -155,6 +179,10 @@
                 }
             }
 
+            // Generate Calendar Grid
+            // Display calendar days and populate tasks for each day
+            // ... (code to generate calendar)
+            
             // Generate Calendar Grid
             // Display calendar days and populate tasks for each day
             // ... (code to generate calendar)

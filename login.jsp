@@ -1,6 +1,4 @@
-root<%@ page import="java.sql.*"%>
-<%@ page import="javax.servlet.http.HttpSession" %>
-<%@ page session="false" %>
+<%@ include file="util.jsp" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,7 +10,7 @@ root<%@ page import="java.sql.*"%>
 </head>
 <body>
     <nav>
-        <a href="home.jsp">
+        <a href="index.jsp">
             <div class="logo">
                 <img src="TaskULogo.png" alt="TaskU Logo">
             </div>
@@ -45,17 +43,18 @@ root<%@ page import="java.sql.*"%>
             if (enteredEmail != null && enteredPassword != null) {
                 String dbName = "tasku";
                 String dbUser = "root";
-                String dbPassword = "graser10";
+                String dbPassword = "root";
                 try {
                     Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
                     PreparedStatement statement = con.prepareStatement("SELECT Password, UserID FROM users WHERE Email = ?");
                     statement.setString(1, enteredEmail);
                     ResultSet rs = statement.executeQuery();
                     if (rs.next()) {
-                        String dbUserPassword = rs.getString("Password");
-                        if (dbUserPassword.equals(enteredPassword)) {
+                        String dbUserPasswordHash = rs.getString("Password");
+                        if (Util.checkHashedPassword(enteredPassword, dbUserPasswordHash)) {
                             int dbUserID = rs.getInt("UserID");
-                            response.sendRedirect("dashboard.jsp?userID=" + dbUserID);
+                            session.setAttribute("userID", dbUserID);
+                            response.sendRedirect("dashboard.jsp");
                         } else {
                             out.println("<h2>Incorrect username or password. Please try again.</h2>");
                         }
