@@ -3,6 +3,7 @@
 <html>
 <head>
     <title>Task Calendar</title>
+    <link rel="stylesheet" href="styles.css">
     <style>
         .calendar {
             font-family: Arial, sans-serif;
@@ -26,7 +27,7 @@
             display: block;
             margin-bottom: 5px;
         }
-    </style>   
+    </style>
     <script>
         function goToNextMonth() {
             // JavaScript function to navigate to the next month
@@ -41,7 +42,7 @@
             // Access the "year" and "month" query parameters
             var year = searchParams.get("year");
             var month = searchParams.get("month");
-            
+
             var currentDate = new Date();
             var currentYear = currentDate.getFullYear();
             var currentMonth = currentDate.getMonth() + 2; // +2 to get the next month
@@ -102,13 +103,54 @@
             // Redirect to the same page with the previous month as a query parameter
             window.location.href = "calendar.jsp?year=" + year + "&month=" + month;
         }
-    </script> 
+    </script>
 </head>
 <body>
+
+  <nav>
+
+      <div class="logo">
+          <img src="TaskULogo.png" alt="TaskU Logo">
+          <br>
+          <div class="nav-links">
+              <a href="dashboard.jsp"> | Dashboard |</a>
+          </div>
+      </div>
+      <div class="user-profile">
+        <!--Places the user's name at the top right by using the user's ID -->
+          <span class="user-name">
+              <%
+                  Integer userID = (Integer) session.getAttribute("userID");
+                  if (userID == null) {
+                      response.sendRedirect("logout.jsp");
+                      return;
+                  }
+                  String fullName = "";
+                  try {
+                      Connection con = Util.get_conn();
+                      PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
+                      statement.setInt(1, userID);
+                      ResultSet rs = statement.executeQuery();
+                      if (!rs.next()) {
+                          response.sendRedirect("logout.jsp");
+                          return;
+                      }
+                      fullName = rs.getString("Name");
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+                  out.print(fullName);
+              %>
+          </span>
+          <a href="settings.jsp">
+              <img src="user-icon.png" class="user-icon"  style="width: 50px; height: 50px;">
+          </a>
+      </div>
+  </nav>
     <h1>Task Calendar</h1>
 
     <%-- Connect to the database --%>
-    <% 
+    <%
         // Create a map to store tasks by date
         Map<String, List<String>> tasksByDate = new HashMap<>();
         Connection conn = null;
@@ -117,16 +159,16 @@
         try {
             conn = Util.get_conn();
             stmt = conn.createStatement();
-            
+
             // Execute SQL query to fetch tasks (replace with your actual query)
             String query = "SELECT Title, DueDate FROM Tasks ORDER BY DueDate";
             rs = stmt.executeQuery(query);
-            
+
             // Process results and store tasks by date
             while (rs.next()) {
                 String taskDate = rs.getString("DueDate");
                 String taskName = rs.getString("Title");
-                
+
                 // Store tasks in the map
                 if (tasksByDate.containsKey(taskDate)) {
                     tasksByDate.get(taskDate).add(taskName);
@@ -136,11 +178,11 @@
                     tasksByDate.put(taskDate, tasks);
                 }
             }
-            
+
             // Generate Calendar Grid
             // Display calendar days and populate tasks for each day
             // ... (code to generate calendar)
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -180,30 +222,30 @@
                 calendar.set(Calendar.YEAR, year);
                 calendar.set(Calendar.MONTH, month - 1); // Calendar.MONTH is 0-based
                 calendar.set(Calendar.DAY_OF_MONTH, 1); // Set calendar to the first day of the month
-                
+
                 int startingDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK); // Get the starting day of the week for the month
-                
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-                
+
                 // Determine the number of placeholder cells needed before the actual days start
                 int numOfEmptyCells = (startingDayOfWeek + 6) % 7; // Calculate the number of empty cells
-                
+
                 out.println("<tr>");
                 for (int i = 0; i < numOfEmptyCells; i++) {
                     out.println("<td></td>"); // Empty cells before the start of the month
                 }
-                
+
                 // Loop to create calendar grid for the entire month
                 for (int i = 1; i <= daysInMonth; i++) {
                     if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && i != 1) {
                         out.println("</tr><tr>"); // Start a new row for Sundays
                     }
-                    
+
                     String currentDate = sdf.format(calendar.getTime());
                     out.print("<td>");
                     out.print("<strong>" + i + "</strong><br>"); // Display day number
-                    
+
                     // Check if tasks exist for this date
                     if (tasksByDate.containsKey(currentDate)) {
                         List<String> tasks = tasksByDate.get(currentDate);
@@ -212,17 +254,16 @@
                         }
                     }
                     out.print("</td>");
-                    
+
                     calendar.add(Calendar.DAY_OF_MONTH, 1); // Move to the next day
                 }
-                
+
                 out.println("</tr>");
             %>
         </table>
         <!-- Buttons to navigate to previous and next months -->
         <button onclick="goToPreviousMonth()">Previous Month</button>
         <button onclick="goToNextMonth()">Next Month</button>
-    </div>    
+    </div>
 </body>
 </html>
-
