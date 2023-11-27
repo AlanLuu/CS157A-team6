@@ -27,6 +27,10 @@
             display: block;
             margin-bottom: 5px;
         }
+
+        .tasks {
+            line-height: 1.5em;
+        }
     </style>
     <script>
         function goToNextMonth() {
@@ -244,14 +248,16 @@
 
                     String currentDate = sdf.format(calendar.getTime());
                     out.print("<td>");
-                    out.print("<strong>" + i + "</strong><br>"); // Display day number
+                    out.print("<strong>" + i + "</strong>"); // Display day number
 
                     // Check if tasks exist for this date
                     if (tasksByDate.containsKey(currentDate)) {
                         List<String> tasks = tasksByDate.get(currentDate);
                         for (String task : tasks) {
-                            out.print(task + "<br>"); // Display tasks for the day
+                            out.print("<span class='tasks'> - " + task + "</span><br>"); // Display tasks for the day
                         }
+                    } else {
+                        out.println("<br>");
                     }
                     out.print("</td>");
 
