@@ -152,8 +152,25 @@ button {
     cursor: pointer;
 }
 
+.subtask {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 10px 0;
+  padding: 10px;
+  cursor: pointer;
+}
+
 /* Style for the task details (hidden by default) */
 .task-details {
+    display: none;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.subtask-details {
     display: none;
     background-color: #fff;
     border: 1px solid #ccc;
