@@ -255,6 +255,22 @@
            }
        }
 
+
+       function startPomodoroTimer(taskId, taskTitle, subtaskId, subtaskName) {
+           // Check if subtaskId is provided, if yes, redirect with subtask details, otherwise, redirect with task details
+           if (subtaskId) {
+               window.location.href = "pomodoroTimer.jsp?subtaskId=" + subtaskId + "&subtaskName=" + encodeURIComponent(subtaskName) + "&isSubtask=true";
+           } else {
+               window.location.href = "pomodoroTimer.jsp?taskId=" + taskId + "&taskTitle=" + encodeURIComponent(taskTitle) + "&isSubtask=false";
+           }
+       }
+
+
+      function capitalizeFirstLetter(str) {
+                  return str.charAt(0).toUpperCase() + str.slice(1);
+          }
+
+
    </script>
 
 </head>
@@ -322,7 +338,6 @@
                 <select name="category">
                   <option value="" disabled selected>Select Category</option>
                 </select>
-              <input type="number" name="allocatedTime" placeholder="Allocated Time (Minutes)" required>
               <select name="status">
                   <option value="Not Started">Not Started</option>
                   <option value="In Progress">In Progress</option>
@@ -343,21 +358,19 @@
             String dueDate = request.getParameter("dueDate");
             String priority = request.getParameter("priority");
             String category = request.getParameter("category");
-            String allocatedTime = request.getParameter("allocatedTime");
             String status = request.getParameter("status");
 
             try {
                 Connection con = Util.get_conn();
 
-                PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Category, AllocatedTime, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Category, Status) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 statement.setInt(1, userID);
                 statement.setString(2, title);
                 statement.setString(3, description);
                 statement.setString(4, dueDate);
                 statement.setString(5, priority);
                 statement.setString(6, category);
-                statement.setString(7, allocatedTime);
-                statement.setString(8, status);
+                statement.setString(7, status);
 
                 statement.executeUpdate();
 
@@ -383,13 +396,14 @@
                         String taskTitle = rs.getString("Title");
                     %>
                         <div class="task">
-                            <h3 onclick="toggleTaskDetails('<%= taskId %>')"><%= taskTitle %></h3>
+                        <h3 onclick="toggleTaskDetails('<%= taskId %>')">
+                              <script>document.write(capitalizeFirstLetter('<%= taskTitle %>'));</script>
+                          </h3>
                             <div id="<%= taskId %>" class="task-details" style="display: none;">
                                 <p><strong>Task Description:</strong> <%= rs.getString("Description") %></p>
                                 <p><strong>Due Date: </strong> <%= rs.getString("DueDate") %></p>
                                 <p><strong>Priority: </strong> <%= rs.getString("Priority") %></p>
                                 <p><strong>Category: </strong> <%= rs.getString("Category") %></p>
-                                <p><strong>Allocated </strong>Time: <%= rs.getString("AllocatedTime") %></p>
                                 <p><strong>Status: </strong><select id="<%= "taskStatus" + taskId %>" name="taskStatus" onchange="updateTaskStatus('<%= taskId %>', this)">
                                     <option value="Not Started" <%= rs.getString("Status").equals("Not Started") ? "selected" : "" %>>Not Started</option>
                                     <option value="In Progress" <%= rs.getString("Status").equals("In Progress") ? "selected" : "" %>>In Progress</option>
@@ -398,6 +412,8 @@
                                 <br>
                                 <button onclick="deleteTask('<%= taskId %>')">Delete</button>
                                 <button onclick="openSubtaskModal('<%= taskId %>')">Add Subtask</button>
+                                <button onclick="startPomodoroTimer('<%= taskId %>', '<%= taskTitle %>')">Start Pomodoro Timer</button>
+
 
                                 <!-- Subtask Modal -->
                                 <div id="subtaskModal<%= taskId %>" class="modal" style="display: none;">
@@ -414,7 +430,6 @@
                                                 <option value="In Progress">In Progress</option>
                                                 <option value="Completed">Completed</option>
                                             </select>
-                                            <input type="number" name="allocatedTimeForSubtask" placeholder="Allocated Time (Minutes)" required>
                                             <input type="hidden" name="userIdForSubtask" value="<%= userID %>">
                                             <input type="hidden" name="taskIdForSubtask" value="<%= taskId %>">
                                             <button type="submit">Create Subtask</button>
@@ -434,11 +449,13 @@
                                             String subtaskName = subtaskRs.getString("SubTaskName");
                                     %>
                                         <div class="subtask">
-                                            <h3 onclick="toggleSubTaskDetails('<%= subtaskId%>')"><%= subtaskName %></h3>
+                                            <h3 onclick="toggleSubTaskDetails('<%= subtaskId %>')">
+                                                <script>document.write(capitalizeFirstLetter('<%= subtaskName %>'));</script>
+                                            </h3>
+
                                             <div id="<%= subtaskId %>" class="subtask-details" style="display: none;">
                                                 <p><strong>Description:</strong> <%= subtaskRs.getString("SubTaskDescription") %></p>
                                                 <p><strong>Due Date:</strong> <%= subtaskRs.getString("SubTaskDueDate") %></p>
-                                                <p><strong>Allocated Time:</strong> <%= subtaskRs.getString("AllocatedTime") %> minutes</p>
                                                 <p><strong>Status:</strong>
                                                 <select id="<%= "subtaskStatus" + subtaskId %>" name="subtaskStatus" onchange="updateSubtaskStatus('<%= subtaskId %>', this.id)">
                                                       <option value="Not Started" <%= subtaskRs.getString("SubTaskStatus").equals("Not Started") ? "selected" : "" %>>Not Started</option>
@@ -446,7 +463,9 @@
                                                       <option value="Completed" <%= subtaskRs.getString("SubTaskStatus").equals("Completed") ? "selected" : "" %>>Completed</option>
                                                   </select>
                                               </p>
+                                              <br>
                                                 <button onclick="deleteSubtask('<%= subtaskId %>')">Delete Subtask</button>
+                                                <button onclick="startPomodoroTimer('<%= subtaskId %>', '<%= subtaskName %>')">Start Pomodoro Timer</button>
                                             </div>
                                         </div>
                                     <%
@@ -477,19 +496,17 @@
           String subtaskStatus = request.getParameter("subtaskStatus");
           String taskIdForSubtask = request.getParameter("taskIdForSubtask");
           String userIdForSubtask = request.getParameter("userIdForSubtask");
-          String allocatedTimeForSubtask = request.getParameter("allocatedTimeForSubtask");
           String subtaskDueDate = request.getParameter("subtaskDueDate");
 
               try {
                   Connection con = Util.get_conn();
-                  PreparedStatement statement = con.prepareStatement("INSERT INTO subtasks (UserId, TaskId, SubTaskName, SubTaskDescription, SubTaskStatus, AllocatedTime, SubTaskDueDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                  PreparedStatement statement = con.prepareStatement("INSERT INTO subtasks (UserId, TaskId, SubTaskName, SubTaskDescription, SubTaskStatus, SubTaskDueDate) VALUES (?, ?, ?, ?, ?, ?)");
                   statement.setString(1, userIdForSubtask);
                   statement.setString(2, taskIdForSubtask);
                   statement.setString(3, subtaskName);
                   statement.setString(4, subtaskDescription);
                   statement.setString(5, subtaskStatus);
-                  statement.setString(6, allocatedTimeForSubtask);
-                  statement.setString(7, subtaskDueDate);
+                  statement.setString(6, subtaskDueDate);
 
                   statement.executeUpdate();
                   response.sendRedirect("dashboard.jsp");
