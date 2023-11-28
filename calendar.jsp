@@ -158,15 +158,13 @@
         // Create a map to store tasks by date
         Map<String, List<String>> tasksByDate = new HashMap<>();
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
             conn = Util.get_conn();
-            stmt = conn.createStatement();
-
-            // Execute SQL query to fetch tasks (replace with your actual query)
-            String query = "SELECT Title, DueDate FROM Tasks ORDER BY DueDate";
-            rs = stmt.executeQuery(query);
+            stmt = conn.prepareStatement("SELECT Title, DueDate FROM Tasks WHERE UserID = ? AND Status != 'Completed' ORDER BY DueDate");
+            stmt.setInt(1, userID);
+            rs = stmt.executeQuery();
 
             // Process results and store tasks by date
             while (rs.next()) {
