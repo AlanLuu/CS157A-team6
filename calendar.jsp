@@ -27,6 +27,10 @@
             display: block;
             margin-bottom: 5px;
         }
+
+        .tasks {
+            line-height: 1.5em;
+        }
     </style>
     <script>
         function goToNextMonth() {
@@ -154,15 +158,13 @@
         // Create a map to store tasks by date
         Map<String, List<String>> tasksByDate = new HashMap<>();
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         ResultSet rs = null;
         try {
             conn = Util.get_conn();
-            stmt = conn.createStatement();
-
-            // Execute SQL query to fetch tasks (replace with your actual query)
-            String query = "SELECT Title, DueDate FROM Tasks ORDER BY DueDate";
-            rs = stmt.executeQuery(query);
+            stmt = conn.prepareStatement("SELECT Title, DueDate FROM Tasks WHERE UserID = ? AND Status != 'Completed' ORDER BY DueDate");
+            stmt.setInt(1, userID);
+            rs = stmt.executeQuery();
 
             // Process results and store tasks by date
             while (rs.next()) {
@@ -244,14 +246,16 @@
 
                     String currentDate = sdf.format(calendar.getTime());
                     out.print("<td>");
-                    out.print("<strong>" + i + "</strong><br>"); // Display day number
+                    out.print("<strong>" + i + "</strong>"); // Display day number
 
                     // Check if tasks exist for this date
                     if (tasksByDate.containsKey(currentDate)) {
                         List<String> tasks = tasksByDate.get(currentDate);
                         for (String task : tasks) {
-                            out.print(task + "<br>"); // Display tasks for the day
+                            out.print("<span class='tasks'> - " + task + "</span><br>"); // Display tasks for the day
                         }
+                    } else {
+                        out.println("<br>");
                     }
                     out.print("</td>");
 
