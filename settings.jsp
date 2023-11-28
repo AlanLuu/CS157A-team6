@@ -47,6 +47,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskU Settings</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .tab-content {
+            text-align: center;
+        }
+        .tab-content > div {
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
 
@@ -107,6 +115,53 @@
         </div>
         <div class="customization-content">
             <!-- Add content for the customization tab -->
+        </div>
+        <div class="rewards-content">
+            <h2>Rewards</h2>
+            <%
+                if (userID != null) {
+                    try {
+                        Connection con = Util.get_conn();
+                        PreparedStatement statement = con.prepareStatement("SELECT * FROM tasks WHERE UserID = ? AND Status='Completed'");
+                        statement.setInt(1, userID);
+                        ResultSet rs = statement.executeQuery();
+                        int numTasksCompleted = 0;
+                        while (rs.next()) {
+                            numTasksCompleted++;
+                        }
+                        if (numTasksCompleted <= 0) {
+                            out.println("No tasks completed.");
+                            out.println("Stop procrastinating and get back to work!");
+                        } else {
+                            out.println("You have completed " + numTasksCompleted + " tasks.");
+                        }
+
+                        out.println("<h3> Achievements earned: </h3>");
+                        statement = con.prepareStatement("SELECT * FROM userrewards NATURAL JOIN rewards WHERE UserID = ?");
+                        statement.setInt(1, userID);
+                        rs = statement.executeQuery();
+                        if (rs.isBeforeFirst()) {
+                            boolean atLeastOneReward = false;
+                            while (rs.next()) {
+                                String rewardName = rs.getString("RewardName");
+                                int rewardPoints = rs.getInt("RewardPoints");
+                                int rewardNumTasks = rs.getInt("NumTasks");
+                                if (numTasksCompleted >= rewardNumTasks) {
+                                    atLeastOneReward = true;
+                                    out.println(rewardName + " - " + rewardPoints + " points");
+                                }
+                            }
+                            if (!atLeastOneReward) {
+                                out.println("None");
+                            }
+                        } else {
+                            out.println("None");
+                        }
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            %>
         </div>
         <!-- Add more content divs for additional tabs -->
     </div>
