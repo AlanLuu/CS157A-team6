@@ -133,14 +133,6 @@ button {
     cursor: pointer;
 }
 
-/* Style for the "Your Tasks" box */
-.task-list {
-    background-color: #f0f0f0;
-    padding: 20px;
-    border: 2px solid #ccc;
-    border-radius: 5px;
-    margin: 20px;
-}
 
 /* Style for individual task boxes */
 .task {
