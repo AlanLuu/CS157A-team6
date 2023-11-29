@@ -120,11 +120,14 @@
             <h2>Rewards</h2>
             <%
                 if (userID != null) {
+                    PreparedStatement preparedStatement;
+                    Statement statement;
+                    ResultSet rs;
                     try {
                         Connection con = Util.get_conn();
-                        PreparedStatement statement = con.prepareStatement("SELECT * FROM tasks WHERE UserID = ? AND Status='Completed'");
-                        statement.setInt(1, userID);
-                        ResultSet rs = statement.executeQuery();
+                        preparedStatement = con.prepareStatement("SELECT * FROM tasks WHERE UserID = ? AND Status='Completed'");
+                        preparedStatement.setInt(1, userID);
+                        rs = preparedStatement.executeQuery();
                         int numTasksCompleted = 0;
                         while (rs.next()) {
                             numTasksCompleted++;
@@ -136,10 +139,26 @@
                             out.println("You have completed " + numTasksCompleted + " tasks.");
                         }
 
+                        //Give user achievements once they've met the requirements
+                        statement = con.createStatement();
+                        rs = statement.executeQuery("SELECT * FROM rewards");
+                        while (rs.next()) {
+                            int rewardID = rs.getInt("RewardID");
+                            int rewardNumTasks = rs.getInt("NumTasks");
+                            if (numTasksCompleted >= rewardNumTasks) {
+                                preparedStatement = con.prepareStatement("INSERT INTO userrewards VALUES(?, ?)");
+                                preparedStatement.setInt(1, userID);
+                                preparedStatement.setInt(2, rewardID);
+                                try {
+                                    preparedStatement.execute();
+                                } catch (SQLException ignore) {}
+                            }
+                        }
+
                         out.println("<h3> Achievements earned: </h3>");
-                        statement = con.prepareStatement("SELECT * FROM userrewards NATURAL JOIN rewards WHERE UserID = ?");
-                        statement.setInt(1, userID);
-                        rs = statement.executeQuery();
+                        preparedStatement = con.prepareStatement("SELECT * FROM userrewards NATURAL JOIN rewards WHERE UserID = ?");
+                        preparedStatement.setInt(1, userID);
+                        rs = preparedStatement.executeQuery();
                         if (rs.isBeforeFirst()) {
                             boolean atLeastOneReward = false;
                             while (rs.next()) {
@@ -149,6 +168,7 @@
                                 if (numTasksCompleted >= rewardNumTasks) {
                                     atLeastOneReward = true;
                                     out.println(rewardName + " - " + rewardPoints + " points");
+                                    out.println("<br>");
                                 }
                             }
                             if (!atLeastOneReward) {
@@ -156,6 +176,20 @@
                             }
                         } else {
                             out.println("None");
+                        }
+
+                        out.println("<h3> Achievements available: </h3>");
+                        statement = con.createStatement();
+                        rs = statement.executeQuery("SELECT * FROM userrewards LEFT JOIN rewards ON userrewards.RewardID=rewards.RewardID WHERE userrewards.RewardID IS NULL OR rewards.RewardID IS NULL UNION SELECT * FROM userrewards RIGHT JOIN rewards ON userrewards.RewardID=rewards.RewardID WHERE userrewards.RewardID IS NULL OR rewards.RewardID IS NULL");
+                        if (rs.isBeforeFirst()) {
+                            while (rs.next()) {
+                                String rewardName = rs.getString("RewardName");
+                                int rewardPoints = rs.getInt("RewardPoints");
+                                out.println(rewardName + " - " + rewardPoints + " points");
+                                out.println("<br>");
+                            }
+                        } else {
+                            out.println("You've earned them all! Wow!");
                         }
                     } catch (SQLException e) {
                         e.printStackTrace();
