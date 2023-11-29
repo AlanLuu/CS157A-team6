@@ -136,7 +136,7 @@
                             out.println("No tasks completed.");
                             out.println("Stop procrastinating and get back to work!");
                         } else {
-                            out.println("You have completed " + numTasksCompleted + " tasks.");
+                            out.println("You have completed " + numTasksCompleted + (numTasksCompleted == 1 ? " task." : " tasks."));
                         }
 
                         //Give user achievements once they've met the requirements
@@ -160,19 +160,12 @@
                         preparedStatement.setInt(1, userID);
                         rs = preparedStatement.executeQuery();
                         if (rs.isBeforeFirst()) {
-                            boolean atLeastOneReward = false;
                             while (rs.next()) {
                                 String rewardName = rs.getString("RewardName");
+                                String rewardDesc = rs.getString("RewardDesc");
                                 int rewardPoints = rs.getInt("RewardPoints");
-                                int rewardNumTasks = rs.getInt("NumTasks");
-                                if (numTasksCompleted >= rewardNumTasks) {
-                                    atLeastOneReward = true;
-                                    out.println(rewardName + " - " + rewardPoints + " points");
-                                    out.println("<br>");
-                                }
-                            }
-                            if (!atLeastOneReward) {
-                                out.println("None");
+                                out.println("<b>" + rewardName + "</b>" + " - " + rewardDesc + " - " + rewardPoints + " points");
+                                out.println("<br>");
                             }
                         } else {
                             out.println("None");
@@ -180,13 +173,17 @@
 
                         out.println("<h3> Achievements available: </h3>");
                         statement = con.createStatement();
-                        rs = statement.executeQuery("SELECT * FROM userrewards LEFT JOIN rewards ON userrewards.RewardID=rewards.RewardID WHERE userrewards.RewardID IS NULL OR rewards.RewardID IS NULL UNION SELECT * FROM userrewards RIGHT JOIN rewards ON userrewards.RewardID=rewards.RewardID WHERE userrewards.RewardID IS NULL OR rewards.RewardID IS NULL");
+                        rs = statement.executeQuery("SELECT * FROM userrewards RIGHT JOIN rewards ON userrewards.RewardID = rewards.RewardID");
                         if (rs.isBeforeFirst()) {
                             while (rs.next()) {
                                 String rewardName = rs.getString("RewardName");
+                                String rewardDesc = rs.getString("RewardDesc");
                                 int rewardPoints = rs.getInt("RewardPoints");
-                                out.println(rewardName + " - " + rewardPoints + " points");
-                                out.println("<br>");
+                                int joinUserID = rs.getInt("UserID");
+                                if (joinUserID == 0) {
+                                    out.println("<b>" + rewardName + "</b>" + " - " + rewardDesc + " - " + rewardPoints + " points");
+                                    out.println("<br>");
+                                }
                             }
                         } else {
                             out.println("You've earned them all! Wow!");
