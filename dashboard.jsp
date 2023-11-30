@@ -1,4 +1,6 @@
 <%@ page import="java.sql.*, java.util.ArrayList, java.util.List, java.util.Arrays, java.util.Map, java.time.*" %>
+<%@ page import="java.text.DateFormat" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ include file="util.jsp" %>
 
 <%
@@ -83,6 +85,26 @@
         }
 
         return;
+    }
+%>
+<%
+    String setReminderTaskId = request.getParameter("setReminderTaskId");
+    if (setReminderTaskId != null) {
+        try (Connection con = Util.get_conn()) {
+            PreparedStatement checkReminderStatement = con.prepareStatement("SELECT * FROM reminders WHERE TaskID = ?");
+            checkReminderStatement.setString(1, setReminderTaskId);
+            ResultSet rs = checkReminderStatement.executeQuery();
+            if (!rs.isBeforeFirst()) {
+                PreparedStatement setReminderPStatement = con.prepareStatement("INSERT INTO reminders(TaskID) VALUES(?)");
+                setReminderPStatement.setString(1, setReminderTaskId);
+                setReminderPStatement.execute();
+            } else {
+                response.sendError(403);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendError(500);
+        }
     }
 %>
 
@@ -319,6 +341,17 @@
            }
        }
 
+       async function setReminder(taskId) {
+           const response = await fetch("dashboard.jsp?setReminderTaskId=" + taskId, {
+               method: "POST"
+           });
+           if (response.ok) {
+               alert("Reminder successfully set.");
+               location.reload();
+           } else if (response.status === 403) {
+               alert("Reminder is already set!");
+           }
+       }
 
       function capitalizeFirstLetter(str) {
             return str.charAt(0).toUpperCase() + str.slice(1);
@@ -641,6 +674,9 @@
                   while (rs.next()) {
                           String taskId = rs.getString("TaskID");
                           String taskTitle = rs.getString("Title");
+                          PreparedStatement reminderStatement = con.prepareStatement("SELECT * FROM reminders WHERE TaskID = ?");
+                          reminderStatement.setString(1, taskId);
+                          ResultSet reminderStatementSet = reminderStatement.executeQuery();
                       %>
                           <div class="task">
                           <h3 onclick="toggleTaskDetails('<%= taskId %>')">
@@ -656,10 +692,20 @@
                                       <option value="In Progress" <%= rs.getString("Status").equals("In Progress") ? "selected" : "" %>>In Progress</option>
                                       <option value="Completed" <%= rs.getString("Status").equals("Completed") ? "selected" : "" %>>Completed</option>
                                   </select>
+                                  <%
+                                      if (reminderStatementSet.isBeforeFirst()) {
+                                          reminderStatementSet.next();
+                                          Timestamp reminderTs = reminderStatementSet.getTimestamp("SetTime");
+                                          Date reminderDate = new Date(reminderTs.getTime());
+                                          DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                                          out.println("<p>Reminder set on " + df.format(reminderDate) + "</p>");
+                                      }
+                                  %>
                                   <br>
                                   <button onclick="deleteTask('<%= taskId %>')">Delete</button>
                                   <button onclick="openSubtaskModal('<%= taskId %>')">Add Subtask</button>
                                   <button onclick="startPomodoroTimer('<%= taskId %>', '<%= taskTitle %>')">Start Pomodoro Timer</button>
+                                  <button onclick="setReminder('<%= taskId %>')">Set reminder</button>
 
 
                                   <!-- Subtask Modal -->
