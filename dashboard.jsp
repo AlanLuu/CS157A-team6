@@ -601,7 +601,7 @@
             try {
                 Connection con = Util.get_conn();
 
-                PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Course, Category, Status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Course, Category, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 statement.setInt(1, userID);
                 statement.setString(2, title);
                 statement.setString(3, description);
