@@ -690,7 +690,7 @@
                   String sortOption = request.getParameter("sort");
 
                   // Start building the SQL query for filters
-                  StringBuilder filterQueryBuilder = new StringBuilder("SELECT * FROM tasks WHERE UserID = ? AND Status != 'Completed'");
+                  StringBuilder filterQueryBuilder = new StringBuilder("SELECT * FROM tasks WHERE UserID = ?");
 
                   // Add status filters to the query
                   if (statusFilters != null && statusFilters.length > 0) {
@@ -737,7 +737,6 @@
                       filterQueryBuilder.append(")");
                   }
 
-                  // Continue with existing code for executing the filter query
                   PreparedStatement filterStatement = con.prepareStatement(filterQueryBuilder.toString());
 
                   // Set parameters for filters
@@ -784,7 +783,6 @@
                       sortQueryBuilder.append(" ORDER BY STR_TO_DATE(DueDate, '%Y-%m-%d') ASC");
                   }
 
-                  // Continue with existing code for executing the final query
                   PreparedStatement finalStatement = con.prepareStatement(sortQueryBuilder.toString());
 
                   // Set parameters for filters in the final query
@@ -818,7 +816,6 @@
 
                   rs = finalStatement.executeQuery();
 
-                  // Continue with existing code for displaying tasks
                   while (rs.next()) {
                           String taskId = rs.getString("TaskID");
                           String taskTitle = rs.getString("Title");
@@ -866,7 +863,7 @@
                                               <!-- Subtask Form Details -->
                                               <input type="text" name="subtaskName" placeholder="Subtask Name" required>
                                               <input type="text" name="subtaskDescription" placeholder="Subtask Description">
-                                              <input type="date" name="subtaskDueDate" required>
+                                              <input type="date" name="subtaskDueDate" required min="<%= java.time.LocalDate.now() %>">
                                               <select name="subtaskStatus">
                                                   <option value="Not Started">Not Started</option>
                                                   <option value="In Progress">In Progress</option>
@@ -933,7 +930,6 @@
 
         if (request.getParameter("subtaskName") != null) {
             if (userID != null) {
-          // Handle Subtask Creation
           String subtaskName = request.getParameter("subtaskName");
           String subtaskDescription = request.getParameter("subtaskDescription");
           String subtaskStatus = request.getParameter("subtaskStatus");
