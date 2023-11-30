@@ -41,11 +41,7 @@
             String enteredPassword = request.getParameter("password");
 
             if (enteredEmail != null && enteredPassword != null) {
-                String dbName = "tasku";
-                String dbUser = "root";
-                String dbPassword = "root";
-                try {
-                    Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/" + dbName, dbUser, dbPassword);
+                try (Connection con = Util.get_conn()) {
                     PreparedStatement statement = con.prepareStatement("SELECT Password, UserID FROM users WHERE Email = ?");
                     statement.setString(1, enteredEmail);
                     ResultSet rs = statement.executeQuery();

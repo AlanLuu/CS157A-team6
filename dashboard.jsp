@@ -500,8 +500,7 @@
                         return;
                     }
                     String fullName = "";
-                    try {
-                        Connection con = Util.get_conn();
+                    try (Connection con = Util.get_conn()) {
                         PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserID = ?");
                         statement.setInt(1, userID);
                         ResultSet rs = statement.executeQuery();
@@ -598,9 +597,7 @@
             String category = request.getParameter("category");
             String status = request.getParameter("status");
 
-            try {
-                Connection con = Util.get_conn();
-
+            try (Connection con = Util.get_conn()) {
                 PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Course, Category, Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 statement.setInt(1, userID);
                 statement.setString(2, title);
@@ -684,9 +681,7 @@
           <%
 
           if (userID != null) {
-              try {
-                  Connection con = Util.get_conn();
-
+              try (Connection con = Util.get_conn()) {
                   String sortOption = request.getParameter("sort");
 
                   // Start building the SQL query for filters
@@ -937,8 +932,7 @@
           String userIdForSubtask = request.getParameter("userIdForSubtask");
           String subtaskDueDate = request.getParameter("subtaskDueDate");
 
-              try {
-                  Connection con = Util.get_conn();
+              try (Connection con = Util.get_conn()) {
                   PreparedStatement statement = con.prepareStatement("INSERT INTO subtasks (UserId, TaskId, SubTaskName, SubTaskDescription, SubTaskStatus, SubTaskDueDate) VALUES (?, ?, ?, ?, ?, ?)");
                   statement.setString(1, userIdForSubtask);
                   statement.setString(2, taskIdForSubtask);
@@ -960,9 +954,7 @@
                 // Handles the Delete Subtask function
                 String deleteSubtaskId = request.getParameter("deleteSubtask");
                 if (deleteSubtaskId != null) {
-                    try {
-                        Connection con = Util.get_conn();
-
+                    try (Connection con = Util.get_conn()) {
                         PreparedStatement statement = con.prepareStatement("DELETE FROM subtasks WHERE SubTaskID = ?");
                         statement.setString(1, deleteSubtaskId);
                         statement.executeUpdate();
@@ -977,9 +969,7 @@
             // Handles the Delete Task function
             String deleteTaskId = request.getParameter("deleteTask");
             if (deleteTaskId != null) {
-                try {
-                    Connection con = Util.get_conn();
-
+                try (Connection con = Util.get_conn()) {
                     PreparedStatement statement = con.prepareStatement("DELETE FROM tasks WHERE TaskID = ?");
                     statement.setString(1, deleteTaskId);
                     statement.executeUpdate();
