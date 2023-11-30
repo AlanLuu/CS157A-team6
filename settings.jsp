@@ -48,88 +48,153 @@
     <title>TaskU Settings</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .tab-content {
-            text-align: center;
-        }
-        .tab-content > div {
-            margin-bottom: 30px;
-        }
-        table {
-            border-collapse: collapse;
-            width: 50%;
-            margin: 20px auto;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
+
+
+      form{
+        display: block;
+        margin-top: 10px;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        margin: 0;
+      }
+
+      .main-container {
+        display: flex;
+        flex: 1;
+      }
+
+      .tabs-container {
+        width: 200px;
+        background-color: #f1f1f1;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        box-sizing: border-box;
+      }
+      
+      .tabs-container button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #ddd;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        color:black;
+      }
+
+      .tabs-container button:hover {
+        background-color: #ccc;
+      }
+
+      .tab-content {
+        flex: 1;
+        padding: 20px;
+      }
+
+      .tab-content > div {
+        display: none;
+      }
+
+      .tab-content h2 {
+        margin-bottom: 10px;
+      }
+
+      .tab-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      .tab-content th, .tab-content td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      .tab-content th {
+        background-color: #f2f2f2;
+      }
     </style>
 </head>
 <body>
 
     <!-- nav bar with logo -->
     <nav>
-   <div class="logo">
-       <img src="TaskULogo.png" alt="TaskU Logo">
-         <br>
-       <div class="nav-links">
-           <a href="dashboard.jsp?userID=<%= userID %>">| Dashboard |</a>
-       </div>
-   </div>
-   <div class="user-profile">
-       <!-- Places the user's name at the top right by using the user's ID -->
-       <span class="user-name">
-           <%
-               // Display user's full name
-               if (userID != null) {
-                   String fullName = "";
-                   try {
-                       Connection con = Util.get_conn();
-                       PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserId = ?");
-                       statement.setInt(1, userID);
-                       ResultSet rs = statement.executeQuery();
-                       if (rs.next()) {
-                           fullName = rs.getString("Name");
-                       } else {
-                           response.sendRedirect("login.jsp");
+      <div class="logo">
+              <a href="index.jsp">
+                  <img src="TaskULogo.png" alt="TaskU Logo">
+              </a>
+              <br>
+          </div>
+          <div class="nav-links">
+             <span class="separator">|</span>
+              <a href="dashboard.jsp?userID=<%= userID %>">Dashboard</a>
+              <span class="separator">|</span>
+              <a href="calendar.jsp">Calendar</a>
+              <span class="separator">|</span>
+          </div>
+       <div class="user-profile">
+           <span class="user-name">
+               <%
+                   // Display user's full name
+                   if (userID != null) {
+                       String fullName = "";
+                       try {
+                           Connection con = Util.get_conn();
+                           PreparedStatement statement = con.prepareStatement("SELECT Name FROM users WHERE UserId = ?");
+                           statement.setInt(1, userID);
+                           ResultSet rs = statement.executeQuery();
+                           if (rs.next()) {
+                               fullName = rs.getString("Name");
+                           } else {
+                               response.sendRedirect("login.jsp");
+                           }
+                       } catch (SQLException e) {
+                           e.printStackTrace();
                        }
-                   } catch (SQLException e) {
-                       e.printStackTrace();
+                       out.print(fullName);
+                   } else {
+                       response.sendRedirect("login.jsp");
                    }
-                   out.print(fullName);
-               } else {
-                   response.sendRedirect("login.jsp");
-               }
-           %>
-       </span>
-       <a href="settings.jsp">
-           <img src="user-icon.png" class="user-icon">
-       </a>
-   </div>
-</nav>
+               %>
+           </span>
+           <a href="settings.jsp">
+             <img src="user-icon.png" class="user-icon"  style="width: 50px; height: 50px;">
+           </a>
+       </div>
+    </nav>
+
+
+<div class="main-container">
+    <div class="tabs-container">
+        <button onclick="showTab('categoryTab')">Categories</button>
+        <button onclick="showTab('rewardsTab')">Rewards</button>
+        <button onclick="showTab('activitiesTab')">Activity Log</button>
+        <br>
+
+        <button onclick="confirmLogout()">Logout</button>
+
+    </div>
+
     <div class="tab-content">
-        <div class="category-content">
+        <div id="categoryTab">
             <h2>Categories</h2>
             <ul>
                 <% for (String category : categories) { %>
                     <li><%= category %></li>
                 <% } %>
             </ul>
-            <!-- Add a form to allow users to add categories -->
             <form id="categoryForm" action="settings.jsp" method="post">
                 <label for="category">Category:</label>
                 <input type="text" id="category" name="category" required style="width: 200px;">
                 <button type="submit">Add Category</button>
             </form>
         </div>
-        <div class="customization-content">
-            <!-- Add content for the customization tab -->
-        </div>
-        <div class="rewards-content">
+
+        <div id="rewardsTab">
             <h2>Rewards</h2>
             <%
                 if (userID != null) {
@@ -207,7 +272,7 @@
                 }
             %>
         </div>
-        <div class="activities-content">
+        <div id="activitiesTab">
             <h2>Activity Log</h2>
             <table>
                 <tr>
@@ -215,7 +280,7 @@
                     <th>Timestamp</th>
                 </tr>
                 <%
-                
+
                     if (userID != null) {
                         PreparedStatement preparedStatement;
                         Statement statement;
@@ -238,10 +303,44 @@
                 %>
             </table>
         </div>
-        <!-- Add more content divs for additional tabs -->
     </div>
-    <form action="logout.jsp">
-      <button type="submit">Logout</button>
-    </form>
+</div>
+
+<script>
+    // Initialize with the default tab from local storage or 'categoryTab' if not present
+    var currentTab = localStorage.getItem('selectedTab') || 'categoryTab';
+
+    function showTab(tabName) {
+        // Hide the currently displayed tab
+        document.getElementById(currentTab).style.display = "none";
+
+        // Show the selected tab
+        document.getElementById(tabName).style.display = "block";
+
+        // Update the current tab
+        currentTab = tabName;
+
+        // Save the selected tab to local storage
+        localStorage.setItem('selectedTab', currentTab);
+    }
+
+    // Restore the selected tab on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        showTab(currentTab);
+
+        // If the local storage has no selected tab, default to 'categoryTab'
+        if (!localStorage.getItem('selectedTab')) {
+            showTab('categoryTab');
+        }
+    });
+
+    function confirmLogout() {
+        var logoutConfirmation = confirm("Are you sure you want to log out?");
+        if (logoutConfirmation) {
+            // Redirect to the logout page if confirmed
+            window.location.href = "logout.jsp";
+        }
+    }
+</script>
 </body>
 </html>

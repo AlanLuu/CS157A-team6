@@ -111,49 +111,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <style>
-        .dashboard-container {
-            display: flex;
-            align-items: flex-start; /* Align items to the top */
-        }
-
-        .filter-section {
-            flex: 0 0 15%; /* Set the width of the filter section */
-            padding: 20px;
-            border-right: 1px solid #ccc;
-        }
-
-        .task-list {
-            flex: 1; /* Let the task list fill the remaining space */
-            background-color: #f0f0f0;
-            padding: 20px;
-            border: 2px solid #ccc;
-            border-radius: 5px;
-            margin: 20px;
-        }
-
-        input[type="checkbox"] {
-            width: auto; /* Set width to auto for checkbox inputs */
-            margin: 0; /* Reset margin for checkbox inputs */
-        }
-        .checkbox-wrapper {
-          white-space: nowrap;
-        }
-        .checkbox {
-          vertical-align: top;
-          display:inline-block;
-        }
-        .checkbox-label {
-          white-space: normal;
-          display:inline-block;
-        }
-
-    </style>
-
+    <link rel="stylesheet" href="styles.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskU Dashboard</title>
-    <link rel="stylesheet" href="styles.css">
+
+      <style>
+      
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 20px;
+            }
+
+            .create-task-button {
+                text-align: center;
+            }
+            .dashboard-container {
+                display: flex;
+                align-items: flex-start; /* Align items to the top */
+            }
+
+            .filter-section {
+                flex: 0 0 15%; /* Set the width of the filter section */
+                padding: 20px;
+                border-right: 1px solid #ccc;
+            }
+
+            .task-list {
+                flex: 1; /* Let the task list fill the remaining space */
+                background-color: #f0f0f0;
+                padding: 20px;
+                border: 2px solid #ccc;
+                border-radius: 5px;
+                margin: 20px;
+            }
+
+            input[type="checkbox"] {
+                width: auto; /* Set width to auto for checkbox inputs */
+                margin: 0; /* Reset margin for checkbox inputs */
+            }
+            .checkbox-wrapper {
+              white-space: nowrap;
+            }
+            .checkbox {
+              vertical-align: top;
+              display:inline-block;
+            }
+            .checkbox-label {
+              white-space: normal;
+              display:inline-block;
+            }
+
+        </style>
+
       <script>
 
       document.addEventListener("DOMContentLoaded", function() {
@@ -382,12 +394,20 @@
 
     <!-- nav bar with logo -->
     <nav>
-
-        <div class="logo">
-            <img src="TaskULogo.png" alt="TaskU Logo">
-        </div>
+      <div class="logo">
+              <a href="index.jsp">
+                  <img src="TaskULogo.png" alt="TaskU Logo">
+              </a>
+              <br>
+          </div>
+          <div class="nav-links">
+             <span class="separator">|</span>
+              <a href="dashboard.jsp">Dashboard</a>
+              <span class="separator">|</span>
+              <a href="calendar.jsp">Calendar</a>
+              <span class="separator">|</span>
+          </div>
         <div class="user-profile">
-          <!--Places the user's name at the top right by using the user's ID -->
             <span class="user-name">
                 <%
                     Integer userID = (Integer) session.getAttribute("userID");
@@ -418,13 +438,31 @@
         </div>
     </nav>
 
- <!-- Create Task Form Popup/Modal -->
+
+<div class="header">
     <div class="create-task-button">
       <button onclick="openTaskModal()">Create Task</button>
     </div>
-    <form action="calendar.jsp">
-      <button type="submit">Open Calendar</button>
+
+    <form method="post" action="<%= request.getRequestURI() %>">
+        <input type="hidden" name="statusFilters" value="<%= Arrays.toString(statusFilters) %>">
+        <input type="hidden" name="categoryFilters" value="<%= Arrays.toString(categoryFilters) %>">
+        <input type="hidden" name="priorityFilters" value="<%= Arrays.toString(priorityFilters) %>">
+
+        <div class="sort-section">
+            <label for="sort">Sort by:</label>
+              <select id="sort" name="sort">
+                  <option value="taskNameAsc">Task Name A->Z</option>
+                  <option value="taskNameDesc">Task Name Z->A</option>
+                  <option value="priorityLowToHigh">Priority Low to High</option>
+                  <option value="dueDateAsc">Due Date Nearest to Farthest</option>
+              </select>
+              <button type="submit">Apply Sort</button>
+        </div>
     </form>
+</div>
+
+
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeTaskModal()">&times;</span>
@@ -484,24 +522,6 @@
         }
     }
     %>
-
-    <form method="post" action="<%= request.getRequestURI() %>">
-        <input type="hidden" name="statusFilters" value="<%= Arrays.toString(statusFilters) %>">
-        <input type="hidden" name="categoryFilters" value="<%= Arrays.toString(categoryFilters) %>">
-        <input type="hidden" name="priorityFilters" value="<%= Arrays.toString(priorityFilters) %>">
-
-        <div class="sort-section">
-            <label for="sort">Sort by:</label>
-            <select id="sort" name="sort">
-                <option value="taskNameAsc">Task Name A->Z</option>
-                <option value="taskNameDesc">Task Name Z->A</option>
-                <option value="priorityLowToHigh">Priority Low to High</option>
-                <option value="dueDateAsc">Due Date Nearest to Farthest</option>
-            </select>
-            <button type="submit">Apply Sort</button>
-        </div>
-    </form>
-
 
     <div class="dashboard-container">
         <!-- Filter Section -->

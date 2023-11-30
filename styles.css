@@ -1,35 +1,37 @@
-/* Reset some default styles for consistency */
 body, h1, h2, p, form, input, button, a {
     margin: 0;
     padding: 0;
 }
 
-/* Basic styling for the body */
 body {
     font-family: Arial, sans-serif;
     background-color: #f0f0f0;
     color: #333;
 }
 
-/* Navigation bar styles */
 nav {
     background-color: white;
     color: black;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     padding: 10px 20px;
 }
 
 .nav-links {
     display: flex;
     align-items: center;
-    margin-right: 20px;
 }
 
 .nav-links a {
     text-decoration: none;
+    align-items: center;
     color: black;
-    margin-right: 20px;
+    margin: 0 8px;
+}
+
+.separator {
+    color: black;
 }
 
 .logo {
@@ -134,7 +136,6 @@ button {
 }
 
 
-/* Style for individual task boxes */
 .task {
     background-color: #fff;
     border: 1px solid #ccc;
@@ -153,7 +154,6 @@ button {
   cursor: pointer;
 }
 
-/* Style for the task details (hidden by default) */
 .task-details {
     display: none;
     background-color: #fff;
@@ -170,9 +170,6 @@ button {
     padding: 10px;
 }
 
-.create-task-button {
-    padding: 20px;
-}
 
 .user-profile {
     display: flex;
@@ -183,6 +180,17 @@ button {
 
 .user-name {
     margin-right: 10px;
+}
+
+
+.user-profile {
+    display: flex;
+    align-items: center; /* Vertically center items */
+    padding: 10px;
+}
+
+.user-name span {
+    margin: 0; /* Add this rule to reset the margin for the span element */
 }
 
 .user-icon {
