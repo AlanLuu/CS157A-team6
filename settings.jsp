@@ -54,6 +54,19 @@
         .tab-content > div {
             margin-bottom: 30px;
         }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -193,6 +206,37 @@
                     }
                 }
             %>
+        </div>
+        <div class="activities-content">
+            <h2>Activity Log</h2>
+            <table>
+                <tr>
+                    <th>Action</th>
+                    <th>Timestamp</th>
+                </tr>
+                <%
+                
+                    if (userID != null) {
+                        PreparedStatement preparedStatement;
+                        Statement statement;
+                        ResultSet rs;
+                        try {
+                            Connection con = Util.get_conn();
+                            preparedStatement = con.prepareStatement("SELECT Activity, ActivityDate FROM activities WHERE UserID = ?");
+                            preparedStatement.setInt(1, userID);
+                            rs = preparedStatement.executeQuery();
+                            while (rs.next()) {
+                                out.println("<tr>");
+                                out.println("<td>" + rs.getString("Activity") + "</td>");
+                                out.println("<td>" + rs.getString("ActivityDate") + "</td>");
+                                out.println("</tr>");
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                %>
+            </table>
         </div>
         <!-- Add more content divs for additional tabs -->
     </div>
