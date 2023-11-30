@@ -2,6 +2,7 @@
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ include file="util.jsp" %>
+<%@page buffer="8192kb" autoFlush="true" %>
 
 <%
   String[] statusFilters = request.getParameterValues("statusFilter");
@@ -733,7 +734,7 @@
                                       <div class="modal-content">
                                           <span class="close" onclick="closeSubtaskModal('<%= taskId %>')">&times;</span>
                                           <h2>Create a New Subtask</h2>
-                                          <form id="createSubtaskForm<%= taskId %>">
+                                          <form id="createSubtaskForm<%= taskId %>" method="POST">
                                               <!-- Subtask Form Details -->
                                               <input type="text" name="subtaskName" placeholder="Subtask Name" required>
                                               <input type="text" name="subtaskDescription" placeholder="Subtask Description">
