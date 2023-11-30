@@ -112,20 +112,23 @@
 <body>
 
   <nav>
-
-    <div class="logo">
-            <a href="index.jsp">
-                <img src="TaskULogo.png" alt="TaskU Logo">
-            </a>
-            <br>
-        </div>
-        <div class="nav-links">
-           <span class="separator">|</span>
-            <a href="dashboard.jsp">Dashboard</a>
-            <span class="separator">|</span>
-            <a href="calendar.jsp">Calendar</a>
-            <span class="separator">|</span>
-        </div>
+    <div class="links">
+      <div class="logo">
+          <a href="index.jsp">
+            <img src="TaskULogo.png" alt="TaskU Logo">
+          </a>
+          <br>
+      </div>
+      <div class="nav-links">
+          <span class="separator">|</span>
+          <a href="dashboard.jsp">Dashboard</a>
+          <span class="separator">|</span>
+          <a href="calendar.jsp">Calendar</a>
+          <span class="separator">|</span>
+          <a href="studytips.jsp">Study Tips</a>
+          <span class="separator">|</span>
+      </div>
+    </div>
       <div class="user-profile">
         <!--Places the user's name at the top right by using the user's ID -->
           <span class="user-name">

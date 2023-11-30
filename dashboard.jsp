@@ -6,6 +6,7 @@
 
 <%
   String[] statusFilters = request.getParameterValues("statusFilter");
+  String[] courseFilters = request.getParameterValues("courseFilter");
   String[] categoryFilters = request.getParameterValues("categoryFilter");
   String[] priorityFilters = request.getParameterValues("priorityFilter");
 %>
@@ -59,14 +60,42 @@
         }
     }
 %>
+
+<%
+    if ("true".equals(request.getParameter("fetchCourses"))) {
+        Integer userID = (Integer) session.getAttribute("userID");
+
+        if (userID != null) {
+            try (Connection con = Util.get_conn();
+                 PreparedStatement statement = con.prepareStatement("SELECT CourseName FROM courses WHERE UserID = ?");) {
+                statement.setInt(1, userID);
+
+                try (ResultSet rs = statement.executeQuery()) {
+                    List<String> courses = new ArrayList<>();
+                    while (rs.next()) {
+                        courses.add(rs.getString("CourseName"));
+                    }
+
+                    out.print(String.join(",", courses));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } else {
+            out.print("User ID not found in the session.");
+        }
+
+        return;
+    }
+%>
+
 <%
     if ("true".equals(request.getParameter("fetchCategories"))) {
         Integer userID = (Integer) session.getAttribute("userID");
 
         if (userID != null) {
             try (Connection con = Util.get_conn();
-                 PreparedStatement statement = con.prepareStatement("SELECT categoryName FROM categories WHERE UserID = ?");
-            ) {
+                 PreparedStatement statement = con.prepareStatement("SELECT categoryName FROM categories WHERE UserID = ?");) {
                 statement.setInt(1, userID);
 
                 try (ResultSet rs = statement.executeQuery()) {
@@ -75,7 +104,6 @@
                         categories.add(rs.getString("categoryName"));
                     }
 
-                    // Print categories as a comma-separated string
                     out.print(String.join(",", categories));
                 }
             } catch (SQLException e) {
@@ -118,7 +146,21 @@
     <title>TaskU Dashboard</title>
 
       <style>
-      
+
+            .form-row {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                margin-bottom: 10px;
+            }
+
+            .form-row select{
+              flex: 1;
+              margin-right: 10px;
+              margin-left: 5px;
+            }
+
+
             .header {
                 display: flex;
                 justify-content: space-between;
@@ -131,17 +173,17 @@
             }
             .dashboard-container {
                 display: flex;
-                align-items: flex-start; /* Align items to the top */
+                align-items: flex-start;
             }
 
             .filter-section {
-                flex: 0 0 15%; /* Set the width of the filter section */
+                flex: 0 0 15%;
                 padding: 20px;
                 border-right: 1px solid #ccc;
             }
 
             .task-list {
-                flex: 1; /* Let the task list fill the remaining space */
+                flex: 1;
                 background-color: #f0f0f0;
                 padding: 20px;
                 border: 2px solid #ccc;
@@ -150,8 +192,8 @@
             }
 
             input[type="checkbox"] {
-                width: auto; /* Set width to auto for checkbox inputs */
-                margin: 0; /* Reset margin for checkbox inputs */
+                width: auto;
+                margin: 0;
             }
             .checkbox-wrapper {
               white-space: nowrap;
@@ -168,6 +210,18 @@
         </style>
 
       <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          var xhr = new XMLHttpRequest();
+          xhr.open("GET", "dashboard.jsp?fetchCourses=true", true);
+          xhr.onreadystatechange = function() {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                  var courses = xhr.responseText.split(",");
+                  populateCourses(courses);
+                  populateCourseFilter(courses);
+              }
+          };
+          xhr.send();
+      });
 
       document.addEventListener("DOMContentLoaded", function() {
           var xhr = new XMLHttpRequest();
@@ -182,12 +236,20 @@
           xhr.send();
       });
 
-     // Function to populate the category dropdown
-     function populateCategories(categories) {
+      function populateCourses(courses) {
+        var courseDropdown = document.querySelector("select[name='course']");
+        courseDropdown.innerHTML = "<option value='' disabled selected>Select Course</option>";
+        courses.forEach(function(course) {
+          var option = document.createElement("option");
+          option.value = course;
+          option.textContent = course;
+          courseDropdown.appendChild(option);
+        });
+      }
+
+   function populateCategories(categories) {
        var categoryDropdown = document.querySelector("select[name='category']");
-       // Clear existing options
        categoryDropdown.innerHTML = "<option value='' disabled selected>Select Category</option>";
-       // Add new options
        categories.forEach(function(category) {
          var option = document.createElement("option");
          option.value = category;
@@ -370,6 +432,24 @@
             return str.charAt(0).toUpperCase() + str.slice(1);
       }
 
+      function populateCourseFilter(courses) {
+          var courseFilterContainer = document.getElementById("courseFilterContainer");
+
+          courses.forEach(function (course) {
+              var checkbox = document.createElement("input");
+              checkbox.type = "checkbox";
+              checkbox.name = "courseFilter";
+              checkbox.value = course;
+
+              var label = document.createElement("label");
+              label.appendChild(checkbox);
+              label.appendChild(document.createTextNode(" " + course));
+
+              courseFilterContainer.appendChild(label);
+              courseFilterContainer.appendChild(document.createElement("br"));
+          });
+      }
+
       function populateCategoryFilter(categories) {
           var categoryFilterContainer = document.getElementById("categoryFilterContainer");
               categories.forEach(function (category) {
@@ -393,21 +473,24 @@
 </head>
 <body>
 
-    <!-- nav bar with logo -->
     <nav>
-      <div class="logo">
-              <a href="index.jsp">
-                  <img src="TaskULogo.png" alt="TaskU Logo">
-              </a>
-              <br>
-          </div>
-          <div class="nav-links">
-             <span class="separator">|</span>
-              <a href="dashboard.jsp">Dashboard</a>
-              <span class="separator">|</span>
-              <a href="calendar.jsp">Calendar</a>
-              <span class="separator">|</span>
-          </div>
+      <div class="links">
+        <div class="logo">
+            <a href="index.jsp">
+              <img src="TaskULogo.png" alt="TaskU Logo">
+            </a>
+            <br>
+        </div>
+        <div class="nav-links">
+            <span class="separator">|</span>
+            <a href="dashboard.jsp">Dashboard</a>
+            <span class="separator">|</span>
+            <a href="calendar.jsp">Calendar</a>
+            <span class="separator">|</span>
+            <a href="studytips.jsp">Study Tips</a>
+            <span class="separator">|</span>
+        </div>
+      </div>
         <div class="user-profile">
             <span class="user-name">
                 <%
@@ -472,19 +555,31 @@
               <input type="text" name="title" placeholder="Task Title" required>
               <input type="text" name="description" placeholder="Task Description">
                 <input type="date" name="dueDate" required min="<%= java.time.LocalDate.now() %>">
-                <select name="priority">
-                    <option value="Low">Low</option>
-                    <option value="Medium">Medium</option>
-                    <option value="High">High</option>
-                </select>
-                <select name="category">
-                  <option value="" disabled selected>Select Category</option>
-                </select>
-              <select name="status">
-                  <option value="Not Started">Not Started</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-              </select>
+                <div class="form-row">
+                    <label for="priority">Priority:</label>
+                    <select name="priority" id="priority">
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                    <label for="status">Status:</label>
+                    <select name="status" id="status">
+                        <option value="Not Started">Not Started</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="course">Course:</label>
+                    <select name="course" id="course">
+                        <option value="" disabled selected>Select Course</option>
+                    </select>
+                    <label for="category">Category:</label>
+                    <select name="category" id="category">
+                        <option value="" disabled selected>Select Category</option>
+                    </select>
+                </div>
               <input type="hidden" name="userID" value="<%= userID %>">
                 <button type="submit">Create Task</button>
             </form>
@@ -499,20 +594,22 @@
             String description = request.getParameter("description");
             String dueDate = request.getParameter("dueDate");
             String priority = request.getParameter("priority");
+            String course = request.getParameter("course");
             String category = request.getParameter("category");
             String status = request.getParameter("status");
 
             try {
                 Connection con = Util.get_conn();
 
-                PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Category, Status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                PreparedStatement statement = con.prepareStatement("INSERT INTO tasks (UserID, Title, Description, DueDate, Priority, Course, Category, Status) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 statement.setInt(1, userID);
                 statement.setString(2, title);
                 statement.setString(3, description);
                 statement.setString(4, dueDate);
                 statement.setString(5, priority);
-                statement.setString(6, category);
-                statement.setString(7, status);
+                statement.setString(6, course);
+                statement.setString(7, category);
+                statement.setString(8, status);
 
                 statement.executeUpdate();
 
@@ -544,6 +641,13 @@
                   <div class="checkbox-wrapper">
                       <input id="status3" class="checkbox" type="checkbox" name="statusFilter" value="Completed"/>
                       <label for="status3" class="checkbox-label">Completed</label>
+                  </div>
+              </div>
+
+              <!-- Course Filter -->
+              <div class="filter-group">
+                  <h3>Course</h3>
+                  <div id="courseFilterContainer">
                   </div>
               </div>
 
@@ -611,6 +715,17 @@
                       filterQueryBuilder.append(")");
                   }
 
+                  if (courseFilters != null && courseFilters.length > 0) {
+                      filterQueryBuilder.append(" AND Course IN (");
+                      for (int i = 0; i < courseFilters.length; i++) {
+                          filterQueryBuilder.append("?");
+                          if (i < courseFilters.length - 1) {
+                              filterQueryBuilder.append(", ");
+                          }
+                      }
+                      filterQueryBuilder.append(")");
+                  }
+
                   if (priorityFilters != null && priorityFilters.length > 0) {
                       filterQueryBuilder.append(" AND Priority IN (");
                       for (int i = 0; i < priorityFilters.length; i++) {
@@ -633,6 +748,12 @@
                   if (statusFilters != null) {
                       for (String status : statusFilters) {
                           filterStatement.setString(filterParamIndex++, status);
+                      }
+                  }
+
+                  if (courseFilters != null) {
+                      for (String course : courseFilters) {
+                          filterStatement.setString(filterParamIndex++, course);
                       }
                   }
 
@@ -677,6 +798,12 @@
                       }
                   }
 
+                  if (courseFilters != null) {
+                      for (String course : courseFilters) {
+                          finalStatement.setString(finalParamIndex++, course);
+                      }
+                  }
+
                   if (categoryFilters != null) {
                       for (String category : categoryFilters) {
                           finalStatement.setString(finalParamIndex++, category);
@@ -707,6 +834,7 @@
                                   <p><strong>Task Description:</strong> <%= rs.getString("Description") %></p>
                                   <p><strong>Due Date: </strong> <%= rs.getString("DueDate") %></p>
                                   <p><strong>Priority: </strong> <%= rs.getString("Priority") %></p>
+                                  <p><strong>Course: </strong> <%= rs.getString("Course") %></p>
                                   <p><strong>Category: </strong> <%= rs.getString("Category") %></p>
                                   <p><strong>Status: </strong><select id="<%= "taskStatus" + taskId %>" name="taskStatus" onchange="updateTaskStatus('<%= taskId %>', this)">
                                       <option value="Not Started" <%= rs.getString("Status").equals("Not Started") ? "selected" : "" %>>Not Started</option>

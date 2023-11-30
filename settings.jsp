@@ -9,6 +9,32 @@
         return;
     }
 
+    List<String> courses = new ArrayList<>();
+    try(Connection con = Util.get_conn();
+        PreparedStatement statement = con.prepareStatement("SELECT * FROM courses WHERE UserID = ?")){
+        statement.setInt(1, userID);
+        ResultSet rs = statement.executeQuery();
+        while (rs.next()) {
+            courses.add(rs.getString("CourseName"));
+        }
+    } catch (SQLException e) {
+        out.println("fetch courses error: " + e);
+    }
+
+    String newCourse = request.getParameter("course");
+    if (newCourse != null && !newCourse.isEmpty()) {
+        try (
+            Connection con = Util.get_conn();
+            PreparedStatement statement = con.prepareStatement("INSERT INTO courses (UserID, CourseName) VALUES (?, ?)")){
+            statement.setInt(1, userID);
+            statement.setString(2, newCourse);
+            statement.executeUpdate();
+
+            response.sendRedirect("settings.jsp");
+        } catch (SQLException e) {
+            out.println("insert course error: " + e);
+        }
+    }
     // Fetch categories from the database for the specific user
     List<String> categories = new ArrayList<>();
     try {
@@ -73,7 +99,7 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         box-sizing: border-box;
       }
-      
+
       .tabs-container button {
         width: 100%;
         padding: 10px;
@@ -117,26 +143,31 @@
       .tab-content th {
         background-color: #f2f2f2;
       }
+
     </style>
 </head>
 <body>
 
     <!-- nav bar with logo -->
     <nav>
-      <div class="logo">
-              <a href="index.jsp">
-                  <img src="TaskULogo.png" alt="TaskU Logo">
-              </a>
-              <br>
-          </div>
-          <div class="nav-links">
-             <span class="separator">|</span>
-              <a href="dashboard.jsp?userID=<%= userID %>">Dashboard</a>
-              <span class="separator">|</span>
-              <a href="calendar.jsp">Calendar</a>
-              <span class="separator">|</span>
-          </div>
-       <div class="user-profile">
+      <div class="links">
+        <div class="logo">
+            <a href="index.jsp">
+              <img src="TaskULogo.png" alt="TaskU Logo">
+            </a>
+            <br>
+        </div>
+        <div class="nav-links">
+            <span class="separator">|</span>
+            <a href="dashboard.jsp?userID=<%= userID %>">Dashboard</a>
+            <span class="separator">|</span>
+            <a href="calendar.jsp">Calendar</a>
+            <span class="separator">|</span>
+            <a href="studytips.jsp">Study Tips</a>
+            <span class="separator">|</span>
+        </div>
+      </div>
+      <div class="user-profile">
            <span class="user-name">
                <%
                    // Display user's full name
@@ -170,6 +201,7 @@
 
 <div class="main-container">
     <div class="tabs-container">
+        <button onclick="showTab('courseTab')">Courses</butotn>
         <button onclick="showTab('categoryTab')">Categories</button>
         <button onclick="showTab('rewardsTab')">Rewards</button>
         <button onclick="showTab('activitiesTab')">Activity Log</button>
@@ -180,6 +212,19 @@
     </div>
 
     <div class="tab-content">
+      <div id="courseTab">
+          <h2>Courses</h2>
+          <ul>
+              <% for (String course : courses) { %>
+                  <li><%= course %></li>
+              <% } %>
+          </ul>
+          <form id="courseForm" action="settings.jsp" method="post">
+              <label for="course">Course:</label>
+              <input type="text" id="course" name="course" required style="width: 200px;">
+              <button type="submit">Add Course</button>
+          </form>
+      </div>
         <div id="categoryTab">
             <h2>Categories</h2>
             <ul>
@@ -307,20 +352,12 @@
 </div>
 
 <script>
-    // Initialize with the default tab from local storage or 'categoryTab' if not present
-    var currentTab = localStorage.getItem('selectedTab') || 'categoryTab';
+    var currentTab = localStorage.getItem('selectedTab') || 'courseTab';
 
     function showTab(tabName) {
-        // Hide the currently displayed tab
         document.getElementById(currentTab).style.display = "none";
-
-        // Show the selected tab
         document.getElementById(tabName).style.display = "block";
-
-        // Update the current tab
         currentTab = tabName;
-
-        // Save the selected tab to local storage
         localStorage.setItem('selectedTab', currentTab);
     }
 
@@ -328,16 +365,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         showTab(currentTab);
 
-        // If the local storage has no selected tab, default to 'categoryTab'
         if (!localStorage.getItem('selectedTab')) {
-            showTab('categoryTab');
+            showTab('courseTab');
         }
     });
 
     function confirmLogout() {
         var logoutConfirmation = confirm("Are you sure you want to log out?");
         if (logoutConfirmation) {
-            // Redirect to the logout page if confirmed
             window.location.href = "logout.jsp";
         }
     }
