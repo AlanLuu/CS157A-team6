@@ -18,6 +18,13 @@ nav {
     padding: 10px 20px;
 }
 
+.links{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
@@ -32,6 +39,7 @@ nav {
 
 .separator {
     color: black;
+    margin: 0 8px;
 }
 
 .logo {
@@ -90,6 +98,14 @@ input {
     border-radius: 5px;
 }
 
+.form-row select {
+    margin-bottom: 10px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
 button {
     background-color: #333;
     color: #fff;
