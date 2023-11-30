@@ -157,6 +157,8 @@
     <%
         // Create a map to store tasks by date
         Map<String, List<String>> tasksByDate = new HashMap<>();
+        Map<String, List<String>> subtasksByDate = new HashMap<>();
+        Map<String, List<String>> mergedTasksByDate = new HashMap<>();
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -181,9 +183,37 @@
                 }
             }
 
-            // Generate Calendar Grid
-            // Display calendar days and populate tasks for each day
-            // ... (code to generate calendar)
+            stmt = conn.prepareStatement("SELECT SubTaskName, SubTaskDueDate FROM SubTasks WHERE UserID = ? AND SubTaskStatus != 'Completed' ORDER BY SubTaskDueDate");
+            stmt.setInt(1, userID);
+            rs = stmt.executeQuery();
+            
+            // Process results and store subtasks by date
+            while (rs.next()) {
+                String subtaskDate = rs.getString("SubTaskDueDate");
+                String subtaskName = rs.getString("SubTaskName");
+
+                // Store tasks in the map
+                if (subtasksByDate.containsKey(subtaskDate)) {
+                    subtasksByDate.get(subtaskDate).add(subtaskName);
+                } else {
+                    List<String> subtasks = new ArrayList<>();
+                    subtasks.add(subtaskName);
+                    subtasksByDate.put(subtaskDate, subtasks);
+                }
+            }
+
+            // Merge subtasks into tasksByDate
+            mergedTasksByDate = new HashMap<>(tasksByDate);
+            for (Map.Entry<String, List<String>> entry : subtasksByDate.entrySet()) {
+                String date = entry.getKey();
+                List<String> subtasks = entry.getValue();
+
+                if (mergedTasksByDate.containsKey(date)) {
+                    mergedTasksByDate.get(date).addAll(subtasks);
+                } else {
+                    mergedTasksByDate.put(date, new ArrayList<>(subtasks));
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -249,10 +279,10 @@
                     out.print("<strong>" + i + "</strong>"); // Display day number
 
                     // Check if tasks exist for this date
-                    if (tasksByDate.containsKey(currentDate)) {
-                        List<String> tasks = tasksByDate.get(currentDate);
-                        for (String task : tasks) {
-                            out.print("<span class='tasks'> - " + task + "</span><br>"); // Display tasks for the day
+                    if (mergedTasksByDate.containsKey(currentDate)) {
+                        List<String> tasksAndSubtasks = mergedTasksByDate.get(currentDate);
+                        for (String taskOrSubtask : tasksAndSubtasks) {
+                            out.print("<span class='tasks'> - " + taskOrSubtask + "</span><br>"); // Display tasks and subtasks for the day
                         }
                     } else {
                         out.println("<br>");
