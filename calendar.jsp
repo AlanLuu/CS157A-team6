@@ -10,19 +10,19 @@
             border-collapse: collapse;
             margin-top: 20px;
         }
-    
+
         .calendar th {
             background-color: #f2f2f2;
             text-align: center;
             padding: 8px;
         }
-    
+
         .calendar td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: center;
         }
-    
+
         .calendar td strong {
             display: block;
             margin-bottom: 5px;
@@ -113,13 +113,19 @@
 
   <nav>
 
-      <div class="logo">
-          <img src="TaskULogo.png" alt="TaskU Logo">
-          <br>
-          <div class="nav-links">
-              <a href="dashboard.jsp"> | Dashboard |</a>
-          </div>
-      </div>
+    <div class="logo">
+            <a href="index.jsp">
+                <img src="TaskULogo.png" alt="TaskU Logo">
+            </a>
+            <br>
+        </div>
+        <div class="nav-links">
+           <span class="separator">|</span>
+            <a href="dashboard.jsp">Dashboard</a>
+            <span class="separator">|</span>
+            <a href="calendar.jsp">Calendar</a>
+            <span class="separator">|</span>
+        </div>
       <div class="user-profile">
         <!--Places the user's name at the top right by using the user's ID -->
           <span class="user-name">
@@ -186,7 +192,7 @@
             stmt = conn.prepareStatement("SELECT SubTaskName, SubTaskDueDate FROM SubTasks WHERE UserID = ? AND SubTaskStatus != 'Completed' ORDER BY SubTaskDueDate");
             stmt.setInt(1, userID);
             rs = stmt.executeQuery();
-            
+
             // Process results and store subtasks by date
             while (rs.next()) {
                 String subtaskDate = rs.getString("SubTaskDueDate");
