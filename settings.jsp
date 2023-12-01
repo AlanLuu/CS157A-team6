@@ -52,8 +52,7 @@
     // Handle category form submission
     String newCategory = request.getParameter("category");
     if (newCategory != null && !newCategory.isEmpty()) {
-        try {
-            Connection con = Util.get_conn();
+        try (Connection con = Util.get_conn()) {
             PreparedStatement statement = con.prepareStatement("INSERT INTO categories (UserID, CategoryName) VALUES (?, ?)");
             statement.setInt(1, userID);
             statement.setString(2, newCategory);
@@ -201,7 +200,7 @@
 
 <div class="main-container">
     <div class="tabs-container">
-        <button onclick="showTab('courseTab')">Courses</butotn>
+        <button onclick="showTab('courseTab')">Courses</button>
         <button onclick="showTab('categoryTab')">Categories</button>
         <button onclick="showTab('rewardsTab')">Rewards</button>
         <button onclick="showTab('activitiesTab')">Activity Log</button>
