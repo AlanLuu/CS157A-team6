@@ -48,7 +48,7 @@
                     PreparedStatement statement = con.prepareStatement("INSERT INTO users(Name, Email, Password) VALUES(?, ?, ?)");
                     statement.setString(1, enteredName);
                     statement.setString(2, enteredEmail);
-                    statement.setString(3, Util.hashPassword(enteredPassword));
+                    statement.setString(3, enteredPassword);
                     statement.execute();
                     response.sendRedirect("login.jsp");
                 } catch (SQLException e) {

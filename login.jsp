@@ -46,8 +46,8 @@
                     statement.setString(1, enteredEmail);
                     ResultSet rs = statement.executeQuery();
                     if (rs.next()) {
-                        String dbUserPasswordHash = rs.getString("Password");
-                        if (Util.checkHashedPassword(enteredPassword, dbUserPasswordHash)) {
+                        String dbUserPassword = rs.getString("Password");
+                        if (enteredPassword.equals(dbUserPassword)) {
                             int dbUserID = rs.getInt("UserID");
                             session.setAttribute("userID", dbUserID);
                             response.sendRedirect("dashboard.jsp");

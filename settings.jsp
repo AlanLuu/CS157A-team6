@@ -263,7 +263,7 @@
 
                         //Give user achievements once they've met the requirements
                         statement = con.createStatement();
-                        rs = statement.executeQuery("SELECT * FROM rewards");
+                        rs = statement.executeQuery("SELECT * FROM rewarddescs NATURAL JOIN rewardpoints");
                         while (rs.next()) {
                             int rewardID = rs.getInt("RewardID");
                             int rewardNumTasks = rs.getInt("NumTasks");
@@ -278,7 +278,7 @@
                         }
 
                         out.println("<h3> Achievements earned: </h3>");
-                        preparedStatement = con.prepareStatement("SELECT * FROM userrewards NATURAL JOIN rewards WHERE UserID = ?");
+                        preparedStatement = con.prepareStatement("SELECT * FROM userrewards NATURAL JOIN (SELECT * FROM rewarddescs NATURAL JOIN rewardpoints) AS rewards WHERE UserID = ?");
                         preparedStatement.setInt(1, userID);
                         rs = preparedStatement.executeQuery();
                         if (rs.isBeforeFirst()) {
@@ -295,7 +295,7 @@
 
                         out.println("<h3> Achievements available: </h3>");
                         statement = con.createStatement();
-                        rs = statement.executeQuery("SELECT * FROM userrewards RIGHT JOIN rewards ON userrewards.RewardID = rewards.RewardID");
+                        rs = statement.executeQuery("SELECT * FROM userrewards RIGHT JOIN (SELECT * FROM rewarddescs NATURAL JOIN rewardpoints) AS rewards ON userrewards.RewardID = rewards.RewardID");
                         if (rs.isBeforeFirst()) {
                             while (rs.next()) {
                                 String rewardName = rs.getString("RewardName");
