@@ -593,8 +593,8 @@
             String description = request.getParameter("description");
             String dueDate = request.getParameter("dueDate");
             String priority = request.getParameter("priority");
-            String course = request.getParameter("course");
-            String category = request.getParameter("category");
+            String course = request.getParameter("course").replace("\n", "");
+            String category = request.getParameter("category").replace("\n", "");
             String status = request.getParameter("status");
 
             try (Connection con = Util.get_conn()) {

@@ -1,5 +1,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="java.util.HashSet" %>
 <%@ include file="util.jsp" %>
 
 <%
@@ -281,11 +283,14 @@
                         preparedStatement = con.prepareStatement("SELECT * FROM userrewards NATURAL JOIN (SELECT * FROM rewarddescs NATURAL JOIN rewardpoints) AS rewards WHERE UserID = ?");
                         preparedStatement.setInt(1, userID);
                         rs = preparedStatement.executeQuery();
+                        Set<Integer> rewardIDEarnedSet = new HashSet<>();
                         if (rs.isBeforeFirst()) {
                             while (rs.next()) {
                                 String rewardName = rs.getString("RewardName");
                                 String rewardDesc = rs.getString("RewardDesc");
                                 int rewardPoints = rs.getInt("RewardPoints");
+                                int rewardID = rs.getInt("RewardID");
+                                rewardIDEarnedSet.add(rewardID);
                                 out.println("<b>" + rewardName + "</b>" + " - " + rewardDesc + " - " + rewardPoints + " points");
                                 out.println("<br>");
                             }
@@ -297,12 +302,17 @@
                         statement = con.createStatement();
                         rs = statement.executeQuery("SELECT * FROM userrewards RIGHT JOIN (SELECT * FROM rewarddescs NATURAL JOIN rewardpoints) AS rewards ON userrewards.RewardID = rewards.RewardID");
                         if (rs.isBeforeFirst()) {
+                            Set<Integer> rewardIDNotEarnedSet = new HashSet<>();
                             while (rs.next()) {
                                 String rewardName = rs.getString("RewardName");
                                 String rewardDesc = rs.getString("RewardDesc");
                                 int rewardPoints = rs.getInt("RewardPoints");
+                                int rewardID = rs.getInt("RewardID");
                                 int joinUserID = rs.getInt("UserID");
-                                if (joinUserID == 0) {
+                                if (joinUserID == 0 || (joinUserID != userID && !rewardIDNotEarnedSet.contains(rewardID) && !rewardIDEarnedSet.contains(rewardID))) {
+                                    if (joinUserID != userID) {
+                                        rewardIDNotEarnedSet.add(rewardID);
+                                    }
                                     out.println("<b>" + rewardName + "</b>" + " - " + rewardDesc + " - " + rewardPoints + " points");
                                     out.println("<br>");
                                 }
